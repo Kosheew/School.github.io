@@ -13,3 +13,49 @@ h1 {
 .color_white_green {
     background-color: #838C3B;
 }
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    padding: 20px;
+    background-color: #f9f9f9;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+th,
+td {
+    border: 1px solid white;
+    padding: 10px;
+    text-align: center;
+}
+
+th {
+    background-color: #ddd;
+}
+
+.bold {
+    font-weight: bold;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+ul li {
+    color: white;
+}
+
+.text-white {
+    color: white;
+}
+
+h2 {
+    text-align: center;
+    color: white;
+}

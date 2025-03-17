@@ -29,7 +29,7 @@
                         <a class="navbar-brand fw-bold text-white" href="indexPfd.html">
                             Прозорість та інформаційна відкритість
                             </a>
-                            <a class="navbar-brand fw-bold text-white" href="useful_information.html">
+                        <a class="navbar-brand fw-bold text-white" href="useful_information.html">
                                 Корисна інформація
                                 </a>
                     </div>
@@ -61,18 +61,18 @@
                                     </li>
                                 </ul>
                             </li>
-                           
+
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle fw-bold text-white" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                           Педагогічне виховання
                         </a>
                                 <ul class="dropdown-menu dropdown-menu-dark">
-                                    <li><a class="dropdown-item text-white" href="#">Сторінка Психолога</a></li>
+                                    <li><a class="dropdown-item text-white" href="pagePsychologist.html">Сторінка Психолога</a></li>
                                     <li>
                                         <hr class="dropdown-divider">
                                     </li>
                                     <li><a class="dropdown-item text-white" href="#">Виховна робота</a></li>
-                                    <li><a class="dropdown-item text-white" href="#">Інклюзивна Освіта</a></li>
+                                    <li><a class="dropdown-item text-white" href="pageInclusion.html">Інклюзивна Освіта</a></li>
                                     <li><a class="dropdown-item text-white" href="#">Булінг</a></li>
 
                                 </ul>
@@ -103,29 +103,29 @@
     <br>
 
     <div class="mainContainer">
-        <div class="container text-center">          
-    <div class="mainContainer">
-        <div class="container text-center" id="Container-pdf">          
+        <div class="container text-center">
+            <div class="mainContainer">
+                <div class="container text-center" id="Container-pdf">
 
-        </div>
-    </div>
-  <br>
+                </div>
+            </div>
+            <br>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js " integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz " crossorigin="anonymous "></script>
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js " integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz " crossorigin="anonymous "></script>
 
-    <script>
-        var names = ["Критерії оцінювання навчальних досягнень учнів."]; 
-        var html = "";
+            <script>
+                var names = ["Критерії оцінювання навчальних досягнень учнів."];
+                var html = "";
 
-        function isMobileDevice() {
-            return /Mobi|Android|iPhone|iPad|iPod/.test(navigator.userAgent);
-        }
-    
-        window.onload = function() {
-        for(var i = 0; i < 1; i++){
-            if (isMobileDevice()) {
+                function isMobileDevice() {
+                    return /Mobi|Android|iPhone|iPad|iPod/.test(navigator.userAgent);
+                }
 
-                html += `  
+                window.onload = function() {
+                    for (var i = 0; i < 1; i++) {
+                        if (isMobileDevice()) {
+
+                            html += `  
                 <div class="row ">
                     <div class="col ">
                         <div class="card mb-3 " style="max-width: 100%; background-color: #222601; ">
@@ -137,10 +137,9 @@
                     </div>
                 </div>
                 `;
-                
-            }
-            else{
-                        html += `
+
+                        } else {
+                            html += `
                         <div class="row ">
                             <div class="col ">
                                 <div class="card mb-3 " style="max-width: 100%; background-color: #222601; ">
@@ -152,14 +151,12 @@
                             </div>
                         </div>
                         `
-                
-            }
-        }
-            document.getElementById('Container-pdf').innerHTML = html;
-        };
 
-        
-    </script>
+                        }
+                    }
+                    document.getElementById('Container-pdf').innerHTML = html;
+                };
+            </script>
 </body>
 
 </html>
