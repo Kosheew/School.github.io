@@ -83,8 +83,9 @@
   background: var(--c-brand-soft); color: var(--c-ink); transition: background var(--dur-1), transform var(--dur-2) var(--ease-spring);
 }
 .icon-btn:hover { transform: rotate(-12deg) scale(1.05); }
-.theme-sun { display: none; }
-:root[data-theme="dark"] .theme-sun { display: block; } :root[data-theme="dark"] .theme-moon { display: none; }
+/* специфічніше за .fa-solid з Font Awesome (він підвантажується після site.css) */
+.icon-btn .theme-sun { display: none; }
+:root[data-theme="dark"] .icon-btn .theme-sun { display: block; } :root[data-theme="dark"] .icon-btn .theme-moon { display: none; }
 .burger { display: none; position: relative; }
 .burger span { position: absolute; left: 12px; right: 12px; height: 2px; border-radius: 2px; background: currentColor; transition: transform var(--dur-2) var(--ease-out), opacity var(--dur-1); }
 .burger span:nth-child(1) { top: 15px; } .burger span:nth-child(2) { top: 20px; } .burger span:nth-child(3) { top: 25px; }

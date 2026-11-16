@@ -43,7 +43,7 @@
   .tile { min-height: 0; padding: 16px; gap: 10px; border-radius: 16px; transform: none; }
   .tile__icon { width: 42px; height: 42px; border-radius: 12px; font-size: 1.05rem; }
   .tile__title { font-size: .9rem; }
-  .tile__text, .tile__arrow { display: none; }
+  .tile .tile__text, .tile .tile__arrow { display: none; }
   .tile:active { scale: .97; background: var(--c-bg-2); }
 
   /* новини */

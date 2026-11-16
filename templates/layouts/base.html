@@ -21,14 +21,21 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@500;600;700&display=swap">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="{{ asset('static/css/site.css') }}">
+  {# іконки не блокують першу появу сторінки: підвантажуються паралельно #}
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"></noscript>
   <script>
-    /* тема до першого кадру — без «блимання» */
-    try { var t = localStorage.getItem("theme"); if (t === "dark" || t === "light") document.documentElement.dataset.theme = t; } catch (e) {}
-    document.documentElement.classList.add("js");
-    /* запобіжник: якщо site.js не завантажився, показуємо вміст без анімацій */
-    setTimeout(function () { if (!window.SITE_READY) document.documentElement.classList.remove("js"); }, 2500);
+    (function (d) {
+      /* тема до першого кадру — без «блимання» */
+      try { var t = localStorage.getItem("theme"); if (t === "dark" || t === "light") d.dataset.theme = t; } catch (e) {}
+      /* шторка відкривається лише після переходу з іншої сторінки сайту, не при першому заході */
+      try { if (sessionStorage.getItem("nav") === "1") { d.classList.add("curtain-in"); sessionStorage.removeItem("nav"); } } catch (e) {}
+      d.classList.add("js");
+      /* запобіжник: якщо site.js не завантажився, показуємо вміст без анімацій */
+      setTimeout(function () { if (!window.SITE_READY) d.classList.remove("js"); }, 1200);
+    })(document.documentElement);
   </script>
   <script src="{{ asset('static/js/site.js') }}" defer></script>
   {% block head %}{% endblock %}

@@ -54,14 +54,10 @@
 .hero__title { font-size: var(--fs-5); font-weight: 700; max-width: 18ch; margin-bottom: .35em; }
 .hero__title--xl { font-size: clamp(1.9rem, .6rem + 6.5vw, 5.6rem); max-width: 12ch; }
 .hero__title em { font-style: normal; }
-/* градієнт на кожне слово: після розбиття на слова фон батька на дітей не переходить */
-.hero__title em, .hero__title em .w > span {
+.hero__title em {
   background: linear-gradient(90deg, var(--c-accent), #fff1b8, var(--c-accent)); background-size: 200% 100%;
   -webkit-background-clip: text; background-clip: text; color: transparent;
   animation: shimmer 5s linear infinite;
-}
-.hero__title em .w > span {
-  animation: word-up .9s var(--ease-out) calc(var(--wi) * 60ms + 120ms) forwards, shimmer 5s linear infinite;
 }
 .hero__lead { font-size: var(--fs-2); max-width: 54ch; color: rgb(255 255 255 / .88); }
 .hero__actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: var(--space-6); }
@@ -151,7 +147,8 @@
 .news-card__title a { color: var(--c-ink); text-decoration: none; }
 .news-card__title a::after { content: ""; position: absolute; inset: 0; z-index: 2; } /* уся картка клікабельна */
 .news-card__excerpt { color: var(--c-muted); font-size: .95rem; margin: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-.news-card__more { margin-top: auto; padding-top: 6px; display: inline-flex; align-items: center; gap: 8px; font-weight: 800; color: var(--c-brand); }
+.news-card__more { position: relative; z-index: 3; align-self: flex-start; margin-top: auto; padding: 8px 0 2px; display: inline-flex; align-items: center; gap: 8px; font-weight: 800; color: var(--c-brand); text-decoration: none; }
+.news-card__more:hover { color: var(--c-ink); }
 .news-card__more i { transition: transform var(--dur-2) var(--ease-out); }
 .news-card:hover .news-card__more i { transform: translateX(6px); }
 .news-card--featured { grid-column: 1 / -1; }

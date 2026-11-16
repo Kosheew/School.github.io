@@ -50,6 +50,7 @@
       var u = internalTarget(e.target.closest && e.target.closest("a[href]"), e);
       if (!u) return;
       e.preventDefault();
+      try { sessionStorage.setItem("nav", "1"); } catch (err) {}
       root.classList.add("is-leaving");
       setTimeout(function () { location.href = u.href; }, 360);
     });
@@ -136,27 +137,6 @@
   onScroll();
   if (toTop) toTop.addEventListener("click", function () { scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" }); });
 
-  /* ---------------------------------------------------------------- заголовки по словах */
-  $$("[data-split]").forEach(function (el) {
-    var i = 0;
-    (function walk(node) {
-      Array.prototype.slice.call(node.childNodes).forEach(function (n) {
-        if (n.nodeType === 3) {
-          var frag = document.createDocumentFragment();
-          n.textContent.split(/(\s+)/).forEach(function (part) {
-            if (!part) return;
-            if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(part)); return; }
-            var w = document.createElement("span"); w.className = "w";
-            var inner = document.createElement("span"); inner.textContent = part;
-            w.style.setProperty("--wi", i++); w.appendChild(inner); frag.appendChild(w);
-          });
-          n.replaceWith(frag);
-        } else if (n.nodeType === 1) walk(n);
-      });
-    })(el);
-    el.setAttribute("aria-label", el.textContent.replace(/\s+/g, " ").trim());
-  });
-
   /* ---------------------------------------------------------------- поява при прокрутці + лічильники */
   function countUp(el) {
     var target = parseFloat(el.dataset.count);
@@ -168,23 +148,37 @@
       if (p < 1) requestAnimationFrame(step);
     })(t0);
   }
-  var observed = $$("[data-reveal], [data-count], [data-timeline]");
-  if ("IntersectionObserver" in window && !reduce) {
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (en) {
-        if (!en.isIntersecting) return;
-        var el = en.target;
-        el.classList.add("is-in");
-        if (el.hasAttribute("data-count")) countUp(el);
-        io.unobserve(el);
-      });
-    }, finePointer
-      ? { rootMargin: "0px 0px -6% 0px", threshold: 0.12 }
-      // на телефоні — трохи раніше, ніж блок доїде до екрана, щоб не чекати під час гортання
-      : { rootMargin: "0px 0px 15% 0px", threshold: 0 });
-    observed.forEach(function (el) { io.observe(el); });
+  /* Перший екран — одразу й без анімації (сторінка виглядає готовою з першого кадру).
+     Решта блоків анімується, коли до них догортають. Проста перевірка позиції замість
+     IntersectionObserver: працює однаково в усіх браузерах і ніколи не лишає блок невидимим. */
+  function reveal(el) {
+    el.classList.add("is-in");
+    if (el.hasAttribute("data-count")) countUp(el);
+  }
+  var pending = $$("[data-reveal], [data-count], [data-timeline]");
+  if (reduce) {
+    pending.forEach(reveal);
   } else {
-    observed.forEach(function (el) { el.classList.add("is-in"); });
+    var fold = innerHeight;
+    pending = pending.filter(function (el) {
+      if (el.getBoundingClientRect().top < fold) { el.classList.add("no-anim"); reveal(el); return false; }
+      return true;
+    });
+    // знімаємо «no-anim» після першого кадру, щоб наведення та інші переходи працювали як завжди
+    requestAnimationFrame(function () { requestAnimationFrame(function () {
+      $$(".no-anim").forEach(function (el) { el.classList.remove("no-anim"); });
+    }); });
+    var checkReveal = function () {
+      if (!pending.length) return;
+      var line = innerHeight * (finePointer ? 0.92 : 1.1); // на телефоні — трохи наперед
+      pending = pending.filter(function (el) {
+        if (el.getBoundingClientRect().top < line) { reveal(el); return false; }
+        return true;
+      });
+    };
+    addEventListener("scroll", checkReveal, { passive: true });
+    addEventListener("resize", checkReveal);
+    addEventListener("load", checkReveal);
   }
 
   /* ---------------------------------------------------------------- ефекти під курсором */

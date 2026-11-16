@@ -3,7 +3,8 @@
 /* ---------- Шторка між сторінками (усі браузери) ----------
    Нова сторінка: три панелі в кольорах гімназії піднімаються одна за одною і відкривають вміст.
    Клік по посиланню (site.js додає .is-leaving): панелі опускаються, по центру — знак «7». */
-.curtain { position: fixed; inset: 0; z-index: 400; display: flex; pointer-events: none; }
+.curtain { position: fixed; inset: 0; z-index: 400; display: none; pointer-events: none; }
+.curtain-in .curtain, .is-leaving .curtain { display: flex; }
 .curtain__panel { flex: 1; background: var(--c-deep); transform-origin: 50% 0; animation: curtain-up .6s var(--ease-out) .02s both; }
 .curtain__panel:nth-child(2) { background: #2b3108; animation-delay: .07s; }
 .curtain__panel:nth-child(3) { background: #3b430d; animation-delay: .12s; }
@@ -41,13 +42,10 @@
 }
 .js [data-reveal].is-in { opacity: 1; translate: 0 0; filter: none; }
 
-/* Заголовки, що з'являються по словах (JS обгортає слова в .w) */
-[data-split] .w { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: .08em; margin-bottom: -.08em; }
-[data-split] .w > span { display: inline-block; translate: 0 105%; animation: word-up .9s var(--ease-out) forwards; animation-delay: calc(var(--wi) * 60ms + 120ms); }
-.hero__lead, .hero__actions, .hero .eyebrow, .crumbs, .article__meta { animation: rise .9s var(--ease-out) both; }
-.hero .eyebrow, .crumbs { animation-delay: .05s; }
-.hero__lead, .article__meta { animation-delay: .35s; }
-.hero__actions { animation-delay: .5s; }
+.hero__title, .article__title, .hero__lead, .hero__actions, .hero .eyebrow, .crumbs, .article__meta { animation: rise .55s var(--ease-out) both; }
+.hero__title, .article__title { animation-delay: .04s; }
+.hero__lead, .article__meta { animation-delay: .1s; }
+.hero__actions { animation-delay: .16s; }
 
 /* Прогрес-лінія таймлайну малюється при появі */
 .timeline.is-in { --progress: 1; }
@@ -57,8 +55,7 @@
   .progress { animation: grow-x linear both; animation-timeline: scroll(root); }
 }
 
-@keyframes rise { from { opacity: 0; translate: 0 26px; filter: blur(6px); } }
-@keyframes word-up { to { translate: 0 0; } }
+@keyframes rise { from { opacity: 0; translate: 0 14px; } }
 @keyframes kenburns { from { scale: 1.05; } to { scale: 1.18; translate: -1.5% -1%; } }
 @keyframes aurora { 0% { translate: 0 0; scale: 1; } 50% { translate: 8% -6%; scale: 1.15; } 100% { translate: -6% 8%; scale: .95; } }
 @keyframes shimmer { to { background-position: -200% 0; } }
@@ -79,6 +76,8 @@
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; transition-duration: 1ms !important; scroll-behavior: auto !important; }
   .js [data-reveal] { opacity: 1; translate: none; filter: none; }
-  [data-split] .w > span { translate: 0 0; }
   .curtain { display: none; }
 }
+
+/* Перший екран: без анімації появи — сторінка готова з першого кадру */
+.js [data-reveal].no-anim, .js [data-reveal].no-anim * { transition: none !important; }

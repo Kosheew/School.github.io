@@ -9,7 +9,7 @@
       {% for c in crumbs %}<span aria-hidden="true">/</span>{% if c[1] %}<a href="{{ c[1] }}">{{ c[0] }}</a>{% else %}<span>{{ c[0] }}</span>{% endif %}{% endfor %}
     </nav>
     {% if eyebrow %}<p class="eyebrow eyebrow--light">{{ eyebrow }}</p>{% endif %}
-    <h1 class="hero__title" data-split>{{ title }}</h1>
+    <h1 class="hero__title">{{ title }}</h1>
     {% if lead %}<p class="hero__lead">{{ lead }}</p>{% endif %}
     {{ caller() if caller is defined else "" }}
   </div>
@@ -42,7 +42,7 @@
     </p>
     <h3 class="news-card__title"><a href="{{ url(n.path) }}">{{ n.title }}</a></h3>
     <p class="news-card__excerpt">{{ n.excerpt }}</p>
-    <span class="news-card__more" aria-hidden="true">Читати <i class="fa-solid fa-arrow-right"></i></span>
+    <a class="news-card__more" href="{{ url(n.path) }}" aria-label="Читати: {{ n.title }}">Читати <i class="fa-solid fa-arrow-right"></i></a>
   </div>
 </article>
 {% endmacro %}
