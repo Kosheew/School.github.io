@@ -1,0 +1,22 @@
+{% extends "layouts/base.html" %}
+{% import "partials/macros.html" as m %}
+{% block main %}
+{{ m.hero("Новини", "Події, змагання, свята та важливі оголошення гімназії.", "static/media/img/news-jura-terenova-gra.jpg", [("Новини", None)]) }}
+
+<section class="section">
+  <div class="container">
+    {% set years = site.news | map(attribute="date.year") | unique | list %}
+    {% if years | length > 1 %}
+    <div class="chips chips--center" role="group" aria-label="Рік" data-reveal>
+      <button class="chip is-active" type="button" data-news-year="">Усі</button>
+      {% for y in years %}<button class="chip" type="button" data-news-year="{{ y }}">{{ y }}</button>{% endfor %}
+    </div>
+    {% endif %}
+    <div class="news-grid news-grid--archive" data-news-archive>
+      {% for n in site.news %}
+      <div class="news-grid__cell" data-year="{{ n.date.year }}">{{ m.news_card(n) }}</div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

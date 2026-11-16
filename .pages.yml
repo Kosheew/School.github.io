@@ -1,0 +1,179 @@
+# Адмінка сайту: https://app.pagescms.org → увійти через GitHub → обрати цей репозиторій.
+# Кожне збереження — це коміт у main; GitHub Actions за 1–2 хв збирає й публікує сайт.
+media:
+  input: static/media
+  output: static/media
+  extensions: [jpg, jpeg, png, webp, gif, pdf]
+
+content:
+  - name: news
+    label: Новини
+    type: collection
+    path: content/news
+    format: json
+    filename: "{year}-{month}-{day}-{fields.slug}.json"
+    view:
+      fields: [title, date, pinned]
+      sort: [date, title]
+      default:
+        sort: date
+        order: desc
+    fields:
+      - name: title
+        label: Заголовок
+        type: string
+        required: true
+      - name: slug
+        label: Адреса сторінки (латиницею, через дефіс)
+        description: Наприклад den-znan-2026. Стане частиною посилання на новину.
+        type: string
+        required: true
+      - name: date
+        label: Дата
+        type: date
+        required: true
+      - name: image
+        label: Головне фото
+        type: image
+        required: true
+      - name: body
+        label: Текст новини
+        type: rich-text
+        required: true
+      - name: pinned
+        label: Закріпити першою на головній
+        type: boolean
+        default: false
+      - name: tone
+        label: Оформлення
+        type: select
+        default: ""
+        options:
+          values:
+            - { value: "", label: Звичайне }
+            - { value: memorial, label: Траурне (чорно-біле) }
+      - name: link
+        label: Кнопка під новиною (необов'язково)
+        type: object
+        fields:
+          - { name: url, label: Посилання, type: string }
+          - { name: label, label: Текст кнопки, type: string }
+
+  - name: documents
+    label: Документи (PDF)
+    type: collection
+    path: content/documents
+    format: json
+    filename: "{fields.section}--{fields.slug}.json"
+    view:
+      fields: [title, section, is_new]
+    fields:
+      - name: title
+        label: Назва документа
+        type: string
+        required: true
+      - name: slug
+        label: Коротка назва файлу (латиницею, через дефіс)
+        type: string
+        required: true
+      - name: section
+        label: Розділ сайту
+        type: select
+        required: true
+        options:
+          values:
+            - { value: home, label: Головна — важливі документи }
+            - { value: transparency, label: Прозорість }
+            - { value: grades-1-4, label: 1–4 класи }
+            - { value: grades-5-9, label: 5–9 класи }
+            - { value: bullying, label: Протидія булінгу }
+            - { value: useful, label: Корисна інформація }
+      - name: file
+        label: PDF-файл
+        type: file
+        required: true
+      - name: date
+        label: Дата документа
+        type: date
+      - name: is_new
+        label: Позначка «Нове»
+        type: boolean
+        default: false
+      - name: order
+        label: Порядок у списку (менше — вище)
+        type: number
+        default: 100
+
+  - name: settings
+    label: Налаштування сайту
+    type: file
+    path: content/settings.json
+    format: json
+    fields:
+      - { name: name, label: Назва закладу, type: string, required: true }
+      - { name: short_name, label: Коротка назва (у шапці), type: string }
+      - { name: honorific, label: «Імені …» (під назвою), type: string }
+      - { name: owner, label: Засновник, type: string }
+      - { name: city, label: Місто, type: string }
+      - { name: tagline, label: Гасло, type: string }
+      - { name: description, label: Опис для Google, type: text }
+      - { name: site_url, label: Адреса сайту, type: string, required: true }
+      - { name: hero_image, label: Фото на головній, type: image }
+      - { name: schedule_url, label: Посилання на розклад, type: string }
+      - name: contacts
+        label: Контакти
+        type: object
+        fields:
+          - { name: address, label: Адреса, type: string }
+          - { name: phone, label: Телефон, type: string }
+          - { name: email, label: E-mail, type: string }
+          - { name: facebook, label: Facebook, type: string }
+      - name: announcement
+        label: Рядок-оголошення над шапкою
+        type: object
+        fields:
+          - { name: enabled, label: Показувати, type: boolean }
+          - { name: text, label: Текст, type: string }
+          - { name: url, label: Посилання (напр. grades-5-9/), type: string }
+      - name: stats
+        label: Цифри на головній
+        type: object
+        list: true
+        fields:
+          - { name: value, label: Число, type: number }
+          - { name: suffix, label: Після числа (напр. " хв"), type: string }
+          - { name: label, label: Підпис, type: string }
+
+  - name: school-year
+    label: Навчальний рік
+    type: file
+    path: content/school-year.json
+    format: json
+    fields:
+      - { name: year, label: Навчальний рік, type: string }
+      - name: timeline
+        label: Семестри й канікули
+        type: object
+        list: true
+        fields:
+          - { name: title, label: Назва, type: string }
+          - { name: dates, label: Дати, type: string }
+          - { name: break, label: Канікули, type: boolean }
+      - name: facts
+        label: Організація навчання
+        type: object
+        list: true
+        fields:
+          - { name: label, label: Підпис, type: string }
+          - { name: value, label: Значення, type: string }
+      - name: reception
+        label: Приймальні дні
+        type: object
+        list: true
+        fields:
+          - { name: day, label: День, type: string }
+          - { name: position, label: Посада, type: string }
+          - { name: name, label: Ім'я, type: string }
+          - { name: time, label: Час, type: string }
+      - { name: vacancies, label: Вакансії, type: string, list: true }
+      - { name: vacancies_note, label: Примітка до вакансій, type: text }

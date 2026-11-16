@@ -1,0 +1,27 @@
+{% extends "layouts/base.html" %}
+{% import "partials/macros.html" as m %}
+{% block main %}
+{{ m.hero("1–4 класи", "Початкова школа Нової української школи: навчаємося з цікавістю та турботою.", "static/media/img/news-zoom-climate.jpg", [("Освітній процес", None), ("1–4 класи", None)]) }}
+<section class="section">
+  <div class="container">
+    <article class="card card--split" data-reveal>
+      <img class="card__img" src="{{ url('static/media/img/news-first-bell.jpg') }}" alt="" loading="lazy">
+      <div class="card__body">
+        <p class="eyebrow">Освітня програма</p>
+        <h2 class="h2">Типова освітня програма</h2>
+        <p>Заклад навчається за типовою освітньою програмою, затвердженою наказом Міністерства освіти і науки України від 12.08.2022 № 743-22, розробленою під керівництвом Савченко О. Я.</p>
+        <dl class="facts facts--compact">
+          <div class="fact"><dt>1 класи</dt><dd>урок 35 хв</dd></div>
+          <div class="fact"><dt>2–4 класи</dt><dd>урок 40 хв</dd></div>
+        </dl>
+      </div>
+    </article>
+  </div>
+</section>
+<section class="section section--tint">
+  <div class="container">
+    {{ m.section_head("Документи", "Програми для 1–4 класів") }}
+    {{ m.doc_list(site.docs("grades-1-4")) }}
+  </div>
+</section>
+{% endblock %}

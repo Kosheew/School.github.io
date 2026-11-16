@@ -1,0 +1,92 @@
+{% extends "layouts/base.html" %}
+{% import "partials/macros.html" as m %}
+{% block main %}
+{% set y = site.year %}
+{{ m.hero("Прозорість та інформаційна відкритість", "Як організовано навчальний рік, прийом учнів, вакансії та всі офіційні документи гімназії.", None, [("Прозорість", None)]) }}
+
+<section class="section">
+  <div class="container stack">
+
+    <article class="card card--split" data-reveal>
+      <img class="card__img" src="{{ url('static/media/img/ukrainian-language.jpg') }}" alt="Мова освітнього процесу" loading="lazy">
+      <div class="card__body">
+        <p class="eyebrow">Мова освітнього процесу</p>
+        <h2 class="h2">Українська!</h2>
+        <p>Мова – унікальний феномен, що є засобом соціалізації, формою реалізації творчого потенціалу кожної людини, а знання державної мови сприяє соціалізації особи та є засобом запобігання дискримінації.</p>
+        <p>Українська мова є мовою офіційного спілкування в навчальному процесі в державних і комунальних навчальних закладах України!</p>
+        <a class="link-arrow" href="https://ccu.gov.ua/storinka-knygy/361-derzhavna-mova" target="_blank" rel="noopener">Детальніше <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+      </div>
+    </article>
+
+    <div class="grid-2">
+      <article class="card" data-reveal>
+        <h2 class="card__h"><i class="fa-solid fa-calendar-check"></i> Навчальний рік {{ y.year }}</h2>
+        <ol class="timeline" data-timeline>
+          {% for t in y.timeline %}
+          <li class="timeline__item{{ ' is-break' if t['break'] }}"><strong>{{ t.title }}</strong><span>{{ t.dates }}</span></li>
+          {% endfor %}
+        </ol>
+      </article>
+      <article class="card" data-reveal style="--i: 1">
+        <h2 class="card__h"><i class="fa-solid fa-circle-info"></i> Організація навчання</h2>
+        <dl class="facts">
+          {% for f in y.facts %}<div class="fact"><dt>{{ f.label }}</dt><dd>{{ f.value }}</dd></div>{% endfor %}
+        </dl>
+      </article>
+    </div>
+
+    <article class="card" data-reveal>
+      <h2 class="card__h"><i class="fa-solid fa-user-clock"></i> Приймальні дні адміністрації</h2>
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr><th>День</th><th>Посада</th><th>Ім'я</th><th>Час</th></tr></thead>
+          <tbody>
+            {% for r in y.reception %}
+            <tr><td data-label="День">{{ r.day }}</td><td data-label="Посада">{{ r.position }}</td><td data-label="Ім'я"><b>{{ r.name }}</b></td><td data-label="Час" class="table__time">{{ r.time }}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </article>
+
+    <div class="grid-2">
+      <article class="card" data-reveal>
+        <h2 class="card__h"><i class="fa-solid fa-door-open"></i> Прийом та відрахування</h2>
+        <p>Прийом учнів до Фастівської гімназії №7 відбувається на підставі наказу Міністерства освіти і науки України № 1276 від 09.09.2024.</p>
+        <a class="link-arrow" href="https://zakon.rada.gov.ua/laws/show/z0564-18#Text" target="_blank" rel="noopener">Порядок зарахування, відрахування та переведення <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+      </article>
+      {% if y.vacancies %}
+      <article class="card card--media" data-reveal style="--i: 1">
+        <img class="card__img card__img--top" src="{{ url('static/media/img/vacancies.jpg') }}" alt="" loading="lazy">
+        <div class="card__body">
+          <h2 class="card__h"><i class="fa-solid fa-briefcase"></i> Вакансії</h2>
+          <ul class="checklist">{% for v in y.vacancies %}<li>{{ v }}</li>{% endfor %}</ul>
+          {% if y.vacancies_note %}<p class="muted">{{ y.vacancies_note }}</p>{% endif %}
+        </div>
+      </article>
+      {% endif %}
+    </div>
+
+    <div class="grid-2">
+      <article class="card" data-reveal>
+        <h2 class="card__h"><i class="fa-solid fa-sitemap"></i> Штатний розпис на 2025 рік</h2>
+        <div class="gallery">
+          <img src="{{ url('static/media/img/staff-schedule-1.jpg') }}" alt="Штатний розпис, аркуш 1" loading="lazy" data-zoom>
+          <img src="{{ url('static/media/img/staff-schedule-2.jpg') }}" alt="Штатний розпис, аркуш 2" loading="lazy" data-zoom>
+        </div>
+      </article>
+      <article class="card" data-reveal style="--i: 1">
+        <h2 class="card__h"><i class="fa-solid fa-chart-column"></i> Статистична звітність</h2>
+        <div class="gallery"><img src="{{ url('static/media/img/statistics.jpg') }}" alt="Статистична звітність" loading="lazy" data-zoom></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="section section--tint">
+  <div class="container">
+    {{ m.section_head("Офіційно", "Документи гімназії", "Переглядайте прямо на сайті або завантажуйте PDF.") }}
+    {{ m.doc_list(site.docs("transparency"), search=true) }}
+  </div>
+</section>
+{% endblock %}

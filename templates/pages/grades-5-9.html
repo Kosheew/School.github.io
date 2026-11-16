@@ -1,0 +1,83 @@
+{% extends "layouts/base.html" %}
+{% import "partials/macros.html" as m %}
+{% block main %}
+{{ m.hero("5–9 класи", "Базова середня освіта: як оцінюють навчання, корисні ресурси та документи для учнів і батьків.", "static/media/img/news-jura-terenova-gra.jpg", [("Освітній процес", None), ("5–9 класи", None)]) }}
+
+{% set nakaz = (site.docs("grades-5-9") | selectattr("is_new") | list or site.docs("grades-5-9"))[0] %}
+<section class="section">
+  <div class="container stack">
+
+    <div class="callout" data-reveal data-spotlight>
+      <span class="callout__icon"><i class="fa-solid fa-bullhorn"></i></span>
+      <div>
+        <span class="badge badge--pulse"><i class="fa-solid fa-star"></i> Діє з 01.09.2026</span>
+        <h2 class="h3">Наказ МОН № 1427 від 14.08.2026</h2>
+        <p>«Про затвердження Рекомендацій щодо оцінювання результатів навчання учнів 5–9 класів закладів загальної середньої освіти». Попередній наказ МОН від 02.08.2024 № 1093 втратив чинність.</p>
+        <div class="row">
+          <a class="btn" href="{{ url(nakaz.file) }}" data-pdf data-pdf-title="{{ nakaz.title }}" data-magnetic><i class="fa-regular fa-eye"></i> Читати наказ</a>
+          <a class="btn btn--soft" href="{{ url(nakaz.file) }}" download><i class="fa-solid fa-download"></i> Завантажити PDF</a>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      {{ m.section_head("Коротко", "Що змінюється в оцінюванні", "Головне з Рекомендацій простими словами. Повний текст — у наказі.") }}
+      <ol class="points">
+        {% for t, d in [
+          ("Оцінюють результат, а не поведінку.", "Дисциплінованість, старанність і темп роботи не є підставою для оцінки."),
+          ("Формувальні оцінки не йдуть у підсумок.", "Вони потрібні для зворотного зв'язку: що вже вдалося і що покращити."),
+          ("Не на кожному уроці.", "Поточні оцінки не потрібно ставити на кожному уроці чи за кожне завдання."),
+          ("Критерії — наперед.", "Учитель повідомляє учням, за якими критеріями оцінюватиме роботу."),
+          ("Оцінка конфіденційна.", "Її знають учитель, учень і батьки; публічні рейтинги учнів не використовують."),
+          ("Результат можна покращити.", "Учень може доопрацювати завдання або повторно продемонструвати вміння."),
+          ("Вхідна діагностика.", "На початку року допомагає побачити освітні втрати й не впливає на оцінки."),
+          ("Академічна доброчесність.", "Учитель заздалегідь пояснює, які джерела, допомога і цифрові інструменти (зокрема ШІ) дозволені."),
+        ] %}
+        <li class="point" data-reveal data-spotlight style="--i: {{ loop.index0 % 4 }}"><strong>{{ t }}</strong> {{ d }}</li>
+        {% endfor %}
+      </ol>
+    </div>
+
+    <article class="card" data-reveal>
+      <h2 class="card__h"><i class="fa-solid fa-code-compare"></i> Формувальне чи поточне?</h2>
+      <div class="compare">
+        {% for name, cls, rows in [
+          ("Формувальне", "a", [("Мета", "Зворотний зв'язок, виявлення навчальних потреб, коригування навчання"), ("Шкала", "Вербальна, рівнева або бальна — на вибір учителя"), ("У журналі", "Не обов'язково"), ("Вплив на підсумок", "Не враховується")]),
+          ("Поточне", "b", [("Мета", "Встановлення і фіксування рівня досягнення результатів на певному етапі"), ("Шкала", "12-бальна"), ("У журналі", "Обов'язково"), ("Вплив на підсумок", "Враховується")]),
+        ] %}
+        <div class="compare__col compare__col--{{ cls }}">
+          <h3 class="h4">{{ name }}</h3>
+          <dl>{% for k, v in rows %}<div><dt>{{ k }}</dt><dd>{{ v }}</dd></div>{% endfor %}</dl>
+        </div>
+        {% endfor %}
+      </div>
+    </article>
+
+    <div class="grid-2">
+      <article class="card" data-reveal>
+        <h2 class="card__h"><i class="fa-solid fa-layer-group"></i> Як виводять підсумкові оцінки</h2>
+        <ol class="timeline" data-timeline>
+          <li class="timeline__item"><strong>Тематична</strong><span>Середнє арифметичне поточних оцінок за тему або підсумкова тематична робота.</span></li>
+          <li class="timeline__item"><strong>Семестрова</strong><span>З тематичних оцінок (або поточних, якщо тематичних немає), можливо з урахуванням семестрової роботи. Не рекомендовано ставити лише за одну роботу.</span></li>
+          <li class="timeline__item is-break"><strong>Річна</strong><span>Середнє арифметичне семестрових оцінок; окрема річна робота не передбачена.</span></li>
+        </ol>
+      </article>
+      <article class="card" data-reveal style="--i: 1">
+        <h2 class="card__h"><i class="fa-solid fa-link"></i> Корисні ресурси МОН</h2>
+        <ul class="checklist">
+          <li><a href="https://bit.ly/4ga580u" target="_blank" rel="noopener">«Як оцінювати в НУШ?» — посібники для 10 освітніх галузей</a></li>
+          <li><a href="https://nus-tasks.net" target="_blank" rel="noopener">Каталог компетентнісних робіт для НУШ</a></li>
+          <li><a href="https://bit.ly/4qn24Da" target="_blank" rel="noopener">«Інтерактивний поступ» на платформі «Освіта для життя»</a></li>
+        </ul>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="section section--tint">
+  <div class="container">
+    {{ m.section_head("Документи", "Для 5–9 класів") }}
+    {{ m.doc_list(site.docs("grades-5-9")) }}
+  </div>
+</section>
+{% endblock %}
