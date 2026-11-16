@@ -1,0 +1,11 @@
+{
+  "title": "Шкільна бібліотека",
+  "lead": "Фонд підручників і художньої літератури, графік роботи бібліотеки та добірки для читання.",
+  "icon": "fa-book",
+  "image": "static/media/img/news-zoom-climate.jpg",
+  "body": "",
+  "related": [
+    "useful",
+    "for-students"
+  ]
+}

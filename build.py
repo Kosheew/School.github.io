@@ -9,6 +9,8 @@
     content/school-year.json   структура року, приймальні дні, вакансії
     content/news/*.json        новини (одна новина = один файл)
     content/documents/*.json   документи (PDF), прив'язані до розділу
+    content/pages/*.json       інформаційні сторінки (Про гімназію, Контакти…); поки текст
+                               не додано, сторінка показує «Інформацію ще не додано»
 
 Збірка падає з поясненням, якщо контент посилається на файл, якого немає,
 тому зламані посилання не потрапляють на живий сайт.
@@ -38,8 +40,8 @@ TEMPLATES = ROOT / "templates"
 STATIC = ROOT / "static"
 DIST = ROOT / "dist"
 
-# Порядок важливий: токени -> база -> макет -> компоненти -> сторінки -> рух.
-CSS_BUNDLE = ["tokens.css", "base.css", "layout.css", "components.css", "pages.css", "motion.css"]
+# Порядок важливий: токени -> база -> макет -> компоненти -> сторінки -> рух -> телефони.
+CSS_BUNDLE = ["tokens.css", "base.css", "layout.css", "components.css", "pages.css", "motion.css", "mobile.css"]
 
 SECTIONS = {
     "home": "Головне",
@@ -50,19 +52,34 @@ SECTIONS = {
     "useful": "Корисне",
 }
 
+# Кожен "page" має існувати (в PAGES або content/pages/), інакше збірка зупиниться —
+# тому пункт меню ніколи не веде на 404.
 NAV = [
     {"label": "Головна", "page": "home"},
     {"label": "Новини", "page": "news"},
-    {"label": "Прозорість", "page": "transparency"},
+    {"label": "Про гімназію", "children": [
+        {"label": "Про гімназію", "page": "about", "icon": "fa-school"},
+        {"label": "Педагогічний колектив", "page": "teachers", "icon": "fa-chalkboard-user"},
+        {"label": "Шкільна бібліотека", "page": "library", "icon": "fa-book"},
+        {"label": "Прозорість та відкритість", "page": "transparency", "icon": "fa-scale-balanced"},
+        {"label": "Контакти", "page": "contacts", "icon": "fa-location-dot"},
+    ]},
     {"label": "Освітній процес", "children": [
         {"label": "Розклад уроків", "external": "schedule_url", "icon": "fa-calendar-days"},
         {"label": "1–4 класи", "page": "grades-1-4", "icon": "fa-shapes"},
         {"label": "5–9 класи", "page": "grades-5-9", "icon": "fa-book-open"},
+        {"label": "Корисна інформація", "page": "useful", "icon": "fa-lightbulb"},
     ]},
     {"label": "Виховання", "children": [
+        {"label": "Виховна робота", "page": "upbringing", "icon": "fa-people-group"},
         {"label": "Сторінка психолога", "page": "psychologist", "icon": "fa-hand-holding-heart"},
         {"label": "Інклюзивна освіта", "page": "inclusion", "icon": "fa-universal-access"},
         {"label": "Протидія булінгу", "page": "bullying", "icon": "fa-shield-heart"},
+    ]},
+    {"label": "Для вас", "children": [
+        {"label": "Учням", "page": "for-students", "icon": "fa-user-graduate"},
+        {"label": "Батькам", "page": "for-parents", "icon": "fa-people-roof"},
+        {"label": "Вчителям", "page": "for-teachers", "icon": "fa-person-chalkboard"},
     ]},
     {"label": "Документи", "page": "documents"},
 ]
@@ -92,9 +109,10 @@ LEGACY = {
     "useful_information.html": "useful-info/",
     "pageInclusion.html": "inclusion/",
     "pagePsychologist.html": "psychologist/",
-    "About.html": "",
-    "forStudent.html": "",
-    "forTeacher.html": "",
+    "About.html": "about/",
+    "forStudent.html": "for-students/",
+    "forTeacher.html": "for-teachers/",
+    "forParrents.html": "for-parents/",
 }
 
 MONTHS = ["січня", "лютого", "березня", "квітня", "травня", "червня", "липня",
@@ -115,6 +133,7 @@ class News:
     pinned: bool = False
     tone: str = ""
     link: dict | None = None
+    gallery: list = field(default_factory=list)
     excerpt: str = ""
     reading_min: int = 1
     prev: "News | None" = None
@@ -137,11 +156,27 @@ class Document:
 
 
 @dataclass
+class InfoPage:
+    slug: str
+    title: str
+    lead: str
+    icon: str = "fa-circle-info"
+    image: str = ""
+    body: str = ""
+    related: list = field(default_factory=list)
+
+    @property
+    def is_empty(self) -> bool:
+        return not strip_tags(self.body).strip()
+
+
+@dataclass
 class Site:
     settings: dict
     year: dict
     news: list[News] = field(default_factory=list)
     documents: list[Document] = field(default_factory=list)
+    info_pages: list[InfoPage] = field(default_factory=list)
 
     def docs(self, *sections: str) -> list[Document]:
         return [d for d in self.documents if d.section in sections]
@@ -201,6 +236,7 @@ def load() -> Site:
             pinned=bool(d.get("pinned")),
             tone=d.get("tone", ""),
             link=d.get("link") if (d.get("link") or {}).get("url") else None,
+            gallery=[media(g, p) for g in (d.get("gallery") or []) if g],
             excerpt=excerpt,
             reading_min=max(1, round(len(text.split()) / 180)),
         ))
@@ -224,6 +260,23 @@ def load() -> Site:
             is_new=bool(d.get("is_new")), size_kb=max(1, (ROOT / f).stat().st_size // 1024),
         ))
     site.documents.sort(key=lambda x: (not x.is_new, x.order, x.title))
+
+    # Кожен PDF з медіатеки має бути у списку документів — інакше його не видно на сайті.
+    listed = {d.file for d in site.documents}
+    orphans = sorted(p.relative_to(ROOT).as_posix() for p in (STATIC / "media" / "docs").rglob("*.pdf")
+                     if p.relative_to(ROOT).as_posix() not in listed)
+    if orphans:
+        raise ContentError("ці PDF є в static/media/docs, але не додані в content/documents "
+                           "(їх не видно на сайті): " + ", ".join(orphans))
+
+    for p in sorted((CONTENT / "pages").glob("*.json")):
+        d = read_json(p)
+        site.info_pages.append(InfoPage(
+            slug=p.stem, title=need(d, "title", p), lead=need(d, "lead", p),
+            icon=d.get("icon") or "fa-circle-info",
+            image=media(d["image"], p) if d.get("image") else "",
+            body=d.get("body", ""), related=list(d.get("related") or []),
+        ))
     return site
 
 
@@ -263,8 +316,25 @@ def build(base: str, *, dev: bool = False) -> None:
             return path
         return current["root"] + path.lstrip("/")
 
+    pages = dict(PAGES)
+    for ip in site.info_pages:
+        if ip.slug in pages:
+            raise ContentError(f"content/pages/{ip.slug}.json: адреса «{ip.slug}» вже зайнята")
+        pages[ip.slug] = ("pages/info.html", f"{ip.slug}/", ip.title, ip.lead)
+    missing = [i["page"] for top in NAV for i in [top, *top.get("children", [])]
+               if "page" in i and i["page"] not in pages]
+    for ip in site.info_pages:
+        missing += [r for r in ip.related if r not in pages]
+    if missing:
+        raise ContentError("меню або «related» посилаються на сторінки, яких немає: " + ", ".join(missing)
+                           + " — створіть content/pages/<назва>.json")
+    info_by_slug = {ip.slug: ip for ip in site.info_pages}
+
     def page_url(key: str) -> str:
-        return url(PAGES[key][1])
+        return url(pages[key][1])
+
+    def page_title(key: str) -> str:
+        return pages[key][2] or s["short_name"]
 
     def absolute(path: str = "") -> str:
         return site_url + path.lstrip("/")
@@ -281,7 +351,7 @@ def build(base: str, *, dev: bool = False) -> None:
                       undefined=StrictUndefined, trim_blocks=True, lstrip_blocks=True)
     env.filters.update(human_date=human_date, fix_links=fix_links)
     env.globals.update(
-        site=site, s=s, nav=NAV, sections=SECTIONS, url=url, page_url=page_url, absolute=absolute,
+        site=site, s=s, nav=NAV, sections=SECTIONS, url=url, page_url=page_url, page_title=page_title, absolute=absolute,
         asset=lambda p: f"{url(p)}?v={version}", dev=dev, today=date.today(),
         build_time=datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ"),
     )
@@ -294,8 +364,9 @@ def build(base: str, *, dev: bool = False) -> None:
         target.write_text(env.get_template(template).render(**ctx), encoding="utf-8")
 
     sitemap: list[tuple[str, date | None]] = []
-    for key, (tpl, out, title, desc) in PAGES.items():
-        render(tpl, out, page=key, title=title, description=desc or s["description"], path=out)
+    for key, (tpl, out, title, desc) in pages.items():
+        render(tpl, out, page=key, title=title, description=desc or s["description"], path=out,
+               info=info_by_slug.get(key))
         sitemap.append((out, None))
 
     for n in site.news:
@@ -305,7 +376,7 @@ def build(base: str, *, dev: bool = False) -> None:
 
     for old, new in LEGACY.items():
         render("layouts/redirect.html", old, page="", title="Сторінку перенесено", description="",
-               path=new, target=page_url("home") if new == "" else url(new))
+               path=new, target_path=new)
 
     render("pages/not-found.html", "404.html", page="", title="Сторінку не знайдено", description="", path="404.html")
 
@@ -319,7 +390,7 @@ def build(base: str, *, dev: bool = False) -> None:
         encoding="utf-8")
 
     ms = (time.perf_counter() - started) * 1000
-    print(f"✓ {len(PAGES)} сторінок, {len(site.news)} новин, {len(site.documents)} документів → dist/ ({ms:.0f} мс, base={base})")
+    print(f"✓ {len(pages)} сторінок, {len(site.news)} новин, {len(site.documents)} документів → dist/ ({ms:.0f} мс, base={base})")
 
 
 # ---------------------------------------------------------------- dev server

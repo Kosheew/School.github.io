@@ -1,0 +1,11 @@
+{
+  "title": "Контакти",
+  "lead": "Адреса, телефон та електронна пошта гімназії, а також як до нас дістатися.",
+  "icon": "fa-location-dot",
+  "image": "static/media/img/hero.jpg",
+  "body": "",
+  "related": [
+    "transparency",
+    "about"
+  ]
+}

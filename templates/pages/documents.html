@@ -1,10 +1,25 @@
 {% extends "layouts/base.html" %}
 {% import "partials/macros.html" as m %}
 {% block main %}
-{{ m.hero("Документи", "Усі офіційні документи гімназії. Шукайте за назвою або оберіть розділ.", "static/media/img/ukrainian-language.jpg", [("Документи", None)]) }}
+{% set docs = site.documents | unique(attribute="file") | list %}
+{{ m.hero("Документи", "Усі " ~ docs | length ~ " офіційних документів гімназії в одному місці. Шукайте за назвою або оберіть розділ — кожен PDF можна переглянути на сайті чи завантажити.", "static/media/img/ukrainian-language.jpg", [("Документи", None)]) }}
 <section class="section">
   <div class="container">
-    {{ m.doc_list(site.documents | unique(attribute="file") | list, search=true, filters=true) }}
+    <div class="docs" data-docs>
+      {{ m.doc_tools(docs, filters=true) }}
+      {% for key, label in sections.items() %}
+        {% set group = docs | selectattr("section", "equalto", key) | list %}
+        {% if group %}
+        <section class="doc-group" data-doc-group data-section="{{ key }}">
+          <h2 class="doc-group__title" data-reveal>{{ label }} <span class="doc-group__n">{{ group | length }}</span></h2>
+          <ul class="doc-list">
+            {% for d in group %}{{ m.doc_item(d, loop.index0) }}{% endfor %}
+          </ul>
+        </section>
+        {% endif %}
+      {% endfor %}
+      <p class="docs__empty" hidden data-docs-empty><i class="fa-regular fa-face-frown"></i> Нічого не знайдено. Спробуйте інше слово.</p>
+    </div>
   </div>
 </section>
 {% endblock %}

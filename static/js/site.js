@@ -29,6 +29,34 @@
     });
   });
 
+  /* ---------------------------------------------------------------- шторка між сторінками
+     Відкриття шторки на новій сторінці — чистий CSS (працює навіть без JS). Тут — її
+     закриття при переході на іншу сторінку сайту: кожен клік має анімацію в будь-якому браузері. */
+  var curtain = $(".curtain");
+  function internalTarget(a, e) {
+    if (!a || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return null;
+    if (a.target && a.target !== "_self") return null;
+    if (a.hasAttribute("download") || a.hasAttribute("data-pdf")) return null;
+    var href = a.getAttribute("href") || "";
+    if (!href || href.charAt(0) === "#" || /^(mailto|tel|viber|javascript):/i.test(href)) return null;
+    var u = new URL(a.href, location.href);
+    if (u.origin !== location.origin) return null;
+    if (/\.(pdf|jpe?g|png|webp|gif|zip|docx?)$/i.test(u.pathname)) return null;
+    if (u.pathname === location.pathname && u.search === location.search) return null; // якір на цій сторінці
+    return u;
+  }
+  if (curtain && !reduce) {
+    document.addEventListener("click", function (e) {
+      var u = internalTarget(e.target.closest && e.target.closest("a[href]"), e);
+      if (!u) return;
+      e.preventDefault();
+      root.classList.add("is-leaving");
+      setTimeout(function () { location.href = u.href; }, 360);
+    });
+    // повернення кнопкою «Назад» з кешу браузера — прибрати шторку
+    addEventListener("pageshow", function (e) { if (e.persisted) root.classList.remove("is-leaving"); });
+  }
+
   /* ---------------------------------------------------------------- шапка і меню */
   var header = $("[data-header]");
   var nav = $("[data-nav]");
@@ -39,11 +67,16 @@
     if (!nav) return;
     nav.classList.toggle("is-open", open);
     scrim.classList.toggle("is-open", open);
+    if (open && header) header.classList.remove("is-hidden");
     burger.setAttribute("aria-expanded", String(open));
     document.body.style.overflow = open ? "hidden" : "";
   }
   if (burger) burger.addEventListener("click", function () { setMenu(!nav.classList.contains("is-open")); });
   if (scrim) scrim.addEventListener("click", function () { setMenu(false); });
+  // кнопка «Меню» в нижній панелі телефона відкриває те саме меню
+  $$("[data-tabbar-menu]").forEach(function (b) {
+    b.addEventListener("click", function () { setMenu(!nav.classList.contains("is-open")); });
+  });
   $$(".nav__item", nav).forEach(function (li, i) { li.style.setProperty("--n", i); });
 
   var toggles = $$("[data-sub-toggle]");
@@ -88,8 +121,9 @@
     if (header) {
       header.classList.toggle("is-scrolled", y > 10);
       var menuOpen = nav && nav.classList.contains("is-open");
-      header.classList.toggle("is-hidden", !menuOpen && y > 400 && y > lastY + 4);
-      if (y < lastY - 4) header.classList.remove("is-hidden");
+      // ховаємо лише при явному русі вниз і показуємо при русі вгору — без «блимання» на повільному скролі
+      if (!menuOpen && y > 400 && y > lastY + 6) header.classList.add("is-hidden");
+      else if (y < lastY - 6 || y <= 400 || menuOpen) header.classList.remove("is-hidden");
     }
     if (progress && !cssProgress) {
       var max = document.documentElement.scrollHeight - innerHeight;
@@ -144,7 +178,10 @@
         if (el.hasAttribute("data-count")) countUp(el);
         io.unobserve(el);
       });
-    }, { rootMargin: "0px 0px -6% 0px", threshold: 0.12 });
+    }, finePointer
+      ? { rootMargin: "0px 0px -6% 0px", threshold: 0.12 }
+      // на телефоні — трохи раніше, ніж блок доїде до екрана, щоб не чекати під час гортання
+      : { rootMargin: "0px 0px 15% 0px", threshold: 0 });
     observed.forEach(function (el) { io.observe(el); });
   } else {
     observed.forEach(function (el) { el.classList.add("is-in"); });
@@ -269,6 +306,7 @@
         it.hidden = !ok;
         if (ok) { shown++; it.classList.add("is-in"); }
       });
+      $$("[data-doc-group]", box).forEach(function (g) { g.hidden = !$$("[data-doc]:not([hidden])", g).length; });
       if (count) count.textContent = shown === items.length ? items.length + " документів" : shown + " з " + items.length;
       if (empty) empty.hidden = shown > 0;
     }

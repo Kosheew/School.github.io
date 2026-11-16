@@ -1,10 +1,30 @@
 /* Рух. Усе тут вимикається, якщо в системі ввімкнено «зменшити рух». */
 
-/* ---------- Плавні переходи між сторінками (View Transitions, Chrome/Edge) ---------- */
-@view-transition { navigation: auto; }
-::view-transition-old(root) { animation: vt-out .28s ease-in both; }
-::view-transition-new(root) { animation: vt-in .5s var(--ease-out) both; }
-.header { view-transition-name: header; }
+/* ---------- Шторка між сторінками (усі браузери) ----------
+   Нова сторінка: три панелі в кольорах гімназії піднімаються одна за одною і відкривають вміст.
+   Клік по посиланню (site.js додає .is-leaving): панелі опускаються, по центру — знак «7». */
+.curtain { position: fixed; inset: 0; z-index: 400; display: flex; pointer-events: none; }
+.curtain__panel { flex: 1; background: var(--c-deep); transform-origin: 50% 0; animation: curtain-up .6s var(--ease-out) .02s both; }
+.curtain__panel:nth-child(2) { background: #2b3108; animation-delay: .07s; }
+.curtain__panel:nth-child(3) { background: #3b430d; animation-delay: .12s; }
+.curtain__mark {
+  position: absolute; left: 50%; top: 50%; translate: -50% -50%;
+  width: 76px; height: 76px; border-radius: 24px; display: grid; place-items: center;
+  font: 700 2.2rem/1 var(--font-head); color: var(--c-accent-ink);
+  background: linear-gradient(135deg, #ffd85c, var(--c-accent) 55%, #e2a90f);
+  box-shadow: 0 12px 40px rgb(244 196 48 / .45);
+  animation: mark-out .3s ease both;
+}
+.is-leaving .curtain { pointer-events: auto; }
+.is-leaving .curtain__panel { transform-origin: 50% 100%; animation: curtain-down .34s var(--ease-out) both; }
+.is-leaving .curtain__panel:nth-child(2) { animation-delay: .05s; }
+.is-leaving .curtain__panel:nth-child(3) { animation-delay: .1s; }
+.is-leaving .curtain__mark { animation: mark-in .35s var(--ease-spring) .12s both; }
+@keyframes curtain-up { from { scale: 1 1; } to { scale: 1 0; } }
+@keyframes curtain-down { from { scale: 1 0; } to { scale: 1 1; } }
+@keyframes mark-out { from { opacity: 1; scale: 1; } to { opacity: 0; scale: .6; rotate: -12deg; } }
+@keyframes mark-in { from { opacity: 0; scale: .5; rotate: 12deg; } to { opacity: 1; scale: 1; rotate: 0deg; } }
+
 /* зміна теми — коло, що розходиться від кнопки */
 :root.theme-anim::view-transition-old(root) { animation: none; }
 :root.theme-anim::view-transition-new(root) { animation: theme-reveal .7s var(--ease-out); }
@@ -55,12 +75,10 @@
 @keyframes fade-out { to { opacity: 0; } }
 @keyframes spin-y { 0%, 60% { rotate: y 0deg; } 100% { rotate: y 360deg; } }
 @keyframes grow-x { from { scale: 0 1; } to { scale: 1 1; } }
-@keyframes vt-out { to { opacity: 0; translate: 0 -12px; } }
-@keyframes vt-in { from { opacity: 0; translate: 0 18px; } }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; transition-duration: 1ms !important; scroll-behavior: auto !important; }
   .js [data-reveal] { opacity: 1; translate: none; filter: none; }
   [data-split] .w > span { translate: 0 0; }
-  @view-transition { navigation: none; }
+  .curtain { display: none; }
 }

@@ -1,0 +1,45 @@
+{% extends "layouts/base.html" %}
+{% import "partials/macros.html" as m %}
+{% block main %}
+{{ m.hero(info.title, info.lead, info.image or None, [(info.title, None)]) }}
+
+<section class="section">
+  <div class="container stack">
+
+    {% if info.slug == "contacts" %}
+      {% set c = s.contacts %}
+      {% if c.address or c.phone or c.email %}
+      <div class="contact-grid">
+        {% if c.address %}<div class="contact" data-reveal data-spotlight><span class="contact__icon"><i class="fa-solid fa-location-dot"></i></span><p class="contact__label">Адреса</p><p class="contact__value">{{ c.address }}</p></div>{% endif %}
+        {% if c.phone %}<a class="contact" href="tel:{{ c.phone | replace(' ', '') }}" data-reveal data-spotlight style="--i: 1"><span class="contact__icon"><i class="fa-solid fa-phone"></i></span><p class="contact__label">Телефон</p><p class="contact__value">{{ c.phone }}</p></a>{% endif %}
+        {% if c.email %}<a class="contact" href="mailto:{{ c.email }}" data-reveal data-spotlight style="--i: 2"><span class="contact__icon"><i class="fa-solid fa-envelope"></i></span><p class="contact__label">E-mail</p><p class="contact__value">{{ c.email }}</p></a>{% endif %}
+      </div>
+      {% endif %}
+    {% endif %}
+
+    {% if info.is_empty %}
+    <div class="empty-state" data-reveal>
+      <div class="empty-state__art" aria-hidden="true">
+        <span class="empty-state__ring"></span><span class="empty-state__ring"></span>
+        <i class="fa-solid {{ info.icon }}"></i>
+      </div>
+      <h2 class="h3">Інформацію ще не додано</h2>
+      <p>Розділ «{{ info.title }}» зараз наповнюється. Зазирніть трохи згодом — тут з'являться актуальні матеріали.</p>
+      {% if info.related %}
+      <p class="empty-state__hint">Тим часом можна переглянути:</p>
+      <div class="empty-state__links">
+        {% for key in info.related %}
+        <a class="btn btn--soft" href="{{ page_url(key) }}" data-magnetic>{{ page_title(key) }} <i class="fa-solid fa-arrow-right"></i></a>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+    {% else %}
+    <article class="card" data-reveal>
+      <div class="prose">{{ info.body | fix_links | safe }}</div>
+    </article>
+    {% endif %}
+
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,125 @@
+/* Телефони та планшети. Мета: менше гортання, великі зони натискання,
+   швидка поява блоків і нижня панель навігації під великий палець. */
+
+/* Нижня панель навігації (лише на телефонах) */
+.tabbar { display: none; }
+
+@media (max-width: 760px) {
+  :root { --header-h: 60px; }
+  body { font-size: 1rem; padding-bottom: calc(68px + env(safe-area-inset-bottom)); }
+  .section { padding-block: 44px; }
+  .section-head { margin-bottom: 20px; gap: 8px; }
+  .section-head__text { font-size: .94rem; }
+  .stack { gap: 20px; }
+
+  /* оголошення — один рядок */
+  .announce { font-size: .78rem; }
+  .announce__inner { padding-block: 7px; justify-content: flex-start; text-align: left; }
+  .announce a { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; min-width: 0; }
+
+  /* шапка компактніша */
+  .header.is-scrolled { --header-h: 56px; }
+  .brand__mark { width: 38px; height: 38px; border-radius: 12px; font-size: 1.1rem; }
+  .icon-btn { width: 40px; height: 40px; }
+
+  /* hero: не на весь екран, кнопки в один ряд */
+  .hero--home { min-height: 0; padding: 72px 0 84px; }
+  .hero--page { padding: 48px 0 36px; }
+  .hero__lead { font-size: 1rem; }
+  .hero__actions { margin-top: 20px; gap: 10px; }
+  .hero__actions .btn { flex: 1 1 0; padding: 14px 12px; font-size: .9rem; }
+  .crumbs { font-size: .8rem; margin-bottom: 10px; }
+
+  /* цифри */
+  .stats { margin-top: -44px; border-radius: 20px; }
+  .stat { padding: 16px; }
+  .stat__label { font-size: .8rem; line-height: 1.35; }
+
+  .ticker { margin-top: 28px; }
+  .ticker__list a { padding: 12px 20px; font-size: .9rem; }
+
+  /* плитки — по дві в ряд, тільки іконка й назва */
+  .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .tile { min-height: 0; padding: 16px; gap: 10px; border-radius: 16px; transform: none; }
+  .tile__icon { width: 42px; height: 42px; border-radius: 12px; font-size: 1.05rem; }
+  .tile__title { font-size: .9rem; }
+  .tile__text, .tile__arrow { display: none; }
+  .tile:active { scale: .97; background: var(--c-bg-2); }
+
+  /* новини */
+  .news-grid { gap: 14px; }
+  .news-card__body { padding: 16px 18px 18px; gap: 6px; }
+  .news-card__title { font-size: 1.02rem; }
+  .news-card__excerpt { -webkit-line-clamp: 2; font-size: .9rem; }
+  .news-card:hover { transform: none; }
+  .news-card:active { scale: .985; }
+
+  /* документи: назва на всю ширину, кнопки під нею */
+  .doc { gap: 12px; padding: 14px; border-radius: 16px; }
+  .doc:hover { transform: none; }
+  .doc__icon { width: 40px; height: 46px; font-size: 1.1rem; }
+  .doc__title { font-size: .95rem; }
+  .doc__actions .btn--sm { padding: 12px 14px; }
+  .docs__tools { gap: 10px; }
+  .docs__count { margin: 0; width: 100%; }
+  .chips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin-inline: -16px; padding-inline: 16px; scroll-snap-type: x proximity; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip { flex: none; scroll-snap-align: start; }
+  .search kbd { display: none; }
+
+  /* картки й блоки */
+  .card { padding: 20px; border-radius: 20px; }
+  .card__h { font-size: 1.08rem; margin-bottom: 16px; }
+  .callout { padding: 20px; gap: 14px; border-radius: 20px; }
+  .callout__icon { width: 46px; height: 46px; border-radius: 14px; font-size: 1.15rem; }
+  .callout .row .btn { flex: 1 1 auto; }
+  .point { padding: 18px; }
+  .point::after { font-size: 2.4rem; }
+  .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .fact { padding: 12px 14px; }
+  .help-grid { grid-template-columns: 1fr; }
+  .cta { padding: 24px; border-radius: 20px; }
+  .cta .btn { width: 100%; }
+  .empty-state { padding: 36px 18px; border-radius: 20px; }
+
+  /* стаття */
+  .article__head { padding: 28px 0 20px; }
+  .article__figure { border-radius: 18px; margin-bottom: 28px; }
+  .article__body { font-size: 1.02rem; }
+  .article__share > span { width: 100%; }
+
+  .footer { padding: 52px 0 24px; }
+  .footer__grid { gap: 28px; }
+
+  /* кнопка «нагору» над нижньою панеллю */
+  .to-top { bottom: calc(80px + env(safe-area-inset-bottom)); right: 14px; width: 46px; height: 46px; }
+
+  /* модальне вікно на весь екран */
+  .modal { width: 100vw; max-width: 100vw; max-height: 100dvh; height: 100dvh; border-radius: 0; }
+
+  /* --- нижня панель --- */
+  .tabbar {
+    position: fixed; left: 10px; right: 10px; bottom: calc(10px + env(safe-area-inset-bottom)); z-index: 45;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 6px;
+    border-radius: 22px; border: 1px solid var(--c-line);
+    background: color-mix(in oklab, var(--c-surface) 86%, transparent);
+    backdrop-filter: saturate(1.6) blur(16px); -webkit-backdrop-filter: saturate(1.6) blur(16px);
+    box-shadow: var(--shadow-3);
+    transition: translate var(--dur-2) var(--ease-out);
+  }
+  .tabbar.is-hidden { translate: 0 140%; }
+  .tabbar__item {
+    display: grid; justify-items: center; gap: 3px; padding: 8px 4px; border: 0; border-radius: 16px; background: none;
+    color: var(--c-muted); text-decoration: none; font: 700 .7rem/1.1 var(--font-body);
+    transition: background var(--dur-1), color var(--dur-1);
+  }
+  .tabbar__item i { font-size: 1.1rem; transition: transform var(--dur-2) var(--ease-spring); }
+  .tabbar__item[aria-current="page"] { background: var(--c-ink); color: var(--c-bg); }
+  .tabbar__item:active i { transform: scale(.85); }
+  body:has(.nav.is-open) .tabbar { translate: 0 140%; }
+}
+
+/* На сенсорних екранах блоки з'являються раніше й швидше — без відчуття «гальмування». */
+@media (hover: none), (max-width: 760px) {
+  .js [data-reveal] { translate: 0 14px; filter: none; transition-duration: .5s; transition-delay: calc(var(--i, 0) * 40ms); }
+}

@@ -1,0 +1,12 @@
+{
+  "title": "Учням",
+  "lead": "Корисне для учнів: правила поведінки, як готуватися до контрольних, олімпіади та конкурси, безпека в інтернеті.",
+  "icon": "fa-user-graduate",
+  "image": "static/media/img/news-kozachata.jpg",
+  "body": "",
+  "related": [
+    "useful",
+    "grades-5-9",
+    "bullying"
+  ]
+}

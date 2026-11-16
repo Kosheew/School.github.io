@@ -37,6 +37,7 @@
 <body data-page="{{ page }}">
   <a class="skip" href="#main">Перейти до змісту</a>
   <div class="progress" aria-hidden="true"></div>
+  <div class="curtain" aria-hidden="true"><span class="curtain__panel"></span><span class="curtain__panel"></span><span class="curtain__panel"></span><span class="curtain__mark">7</span></div>
 
   {% if s.announcement.enabled and s.announcement.text %}
   <div class="announce">
@@ -136,10 +137,12 @@
         <div>
           <h2 class="footer__h">Інформація</h2>
           <ul>
+            <li><a href="{{ page_url('about') }}">Про гімназію</a></li>
             <li><a href="{{ page_url('news') }}">Новини</a></li>
             <li><a href="{{ page_url('transparency') }}">Прозорість</a></li>
             <li><a href="{{ page_url('documents') }}">Усі документи</a></li>
             <li><a href="{{ page_url('useful') }}">Корисне</a></li>
+            <li><a href="{{ page_url('contacts') }}">Контакти</a></li>
           </ul>
         </div>
       </div>
@@ -151,6 +154,14 @@
   </footer>
 
   <button class="to-top" type="button" aria-label="Нагору" data-to-top><i class="fa-solid fa-arrow-up"></i></button>
+
+  {# нижня панель — лише на телефонах (mobile.css) #}
+  <nav class="tabbar" aria-label="Швидка навігація" data-tabbar>
+    {% for key, icon, label in [("home", "fa-house", "Головна"), ("news", "fa-newspaper", "Новини"), ("documents", "fa-folder-open", "Документи")] %}
+    <a class="tabbar__item" href="{{ page_url(key) }}"{% if page == key %} aria-current="page"{% endif %}><i class="fa-solid {{ icon }}"></i><span>{{ label }}</span></a>
+    {% endfor %}
+    <button class="tabbar__item" type="button" data-tabbar-menu aria-controls="nav"><i class="fa-solid fa-bars"></i><span>Меню</span></button>
+  </nav>
 
   <dialog class="modal" data-modal aria-labelledby="modal-title">
     <div class="modal__bar">

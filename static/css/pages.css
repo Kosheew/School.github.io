@@ -1,4 +1,56 @@
-/* Дрібні правки під окремі сторінки */
+/* Дрібні правки та блоки під окремі сторінки */
 [data-page="home"] .section:first-of-type { padding-top: var(--space-7); }
 .news-grid--archive .news-card { height: 100%; }
+
+/* ---------- Документи: групи за розділами ---------- */
+.doc-group + .doc-group { margin-top: var(--space-7); }
+.doc-group__title { display: flex; align-items: center; gap: 12px; font-size: var(--fs-2); margin-bottom: var(--space-4); }
+.doc-group__n, .chip__n {
+  display: inline-grid; place-items: center; min-width: 1.8em; height: 1.8em; padding: 0 .5em; border-radius: 999px;
+  font: 800 .72rem/1 var(--font-body); background: var(--c-brand-soft); color: var(--c-brand);
+}
+.chip.is-active .chip__n { background: rgb(255 255 255 / .18); color: inherit; }
 [data-page="documents"] .doc-list { gap: 10px; }
+
+/* ---------- «Інформацію ще не додано» ---------- */
+.empty-state {
+  position: relative; overflow: hidden; text-align: center; display: grid; justify-items: center;
+  padding: clamp(40px, 7vw, 80px) clamp(20px, 5vw, 64px); border-radius: var(--radius-lg);
+  border: 1px dashed color-mix(in oklab, var(--c-brand) 40%, transparent);
+  background:
+    radial-gradient(500px circle at 50% 0%, color-mix(in oklab, var(--c-accent) 18%, transparent), transparent 70%),
+    var(--c-surface);
+}
+.empty-state p { max-width: 54ch; color: var(--c-muted); }
+.empty-state .h3 { margin-top: var(--space-5); }
+.empty-state__art { position: relative; width: 120px; height: 120px; display: grid; place-items: center; }
+.empty-state__art i {
+  position: relative; z-index: 1; width: 84px; height: 84px; display: grid; place-items: center; border-radius: 26px;
+  font-size: 2.1rem; color: var(--c-accent-ink); background: linear-gradient(135deg, #ffd85c, var(--c-accent) 55%, #e2a90f);
+  box-shadow: 0 14px 36px rgb(244 196 48 / .4); animation: float 3.6s ease-in-out infinite;
+}
+.empty-state__ring { position: absolute; inset: 0; border-radius: 50%; border: 2px solid color-mix(in oklab, var(--c-brand) 45%, transparent); animation: ring 3s var(--ease-out) infinite; }
+.empty-state__ring + .empty-state__ring { animation-delay: 1.5s; }
+.empty-state__hint { margin: var(--space-3) 0 var(--space-3); font-weight: 800; color: var(--c-ink) !important; }
+.empty-state__links { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+@keyframes float { 50% { translate: 0 -10px; rotate: -4deg; } }
+@keyframes ring { from { scale: .6; opacity: 1; } to { scale: 1.6; opacity: 0; } }
+
+/* ---------- Контакти ---------- */
+.contact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: var(--space-4); }
+.contact {
+  position: relative; overflow: hidden; display: grid; gap: 4px; padding: 26px; border-radius: var(--radius);
+  border: 1px solid var(--c-line); background: var(--c-surface); color: var(--c-ink); text-decoration: none;
+  transition: transform var(--dur-2) var(--ease-out), box-shadow var(--dur-2);
+}
+.contact:hover { color: var(--c-ink); transform: translateY(-4px); box-shadow: var(--shadow-2); }
+.contact__icon { width: 48px; height: 48px; margin-bottom: 10px; display: grid; place-items: center; border-radius: 14px; background: var(--c-brand-soft); color: var(--c-brand); font-size: 1.2rem; }
+.contact__label { margin: 0; font-size: .78rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--c-muted); }
+.contact__value { margin: 0; font-weight: 800; font-size: 1.1rem; }
+
+/* ---------- Телефони ---------- */
+.empty-state { grid-template-columns: minmax(0, 1fr); }
+.empty-state__links .btn { white-space: normal; text-align: center; line-height: 1.3; }
+@media (max-width: 520px) {
+  .empty-state__links { flex-direction: column; align-items: stretch; width: 100%; }
+}

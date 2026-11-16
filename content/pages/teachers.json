@@ -1,0 +1,11 @@
+{
+  "title": "Педагогічний колектив",
+  "lead": "Педагоги гімназії: класні керівники, вчителі-предметники, асистенти вчителів і фахівці психологічного супроводу.",
+  "icon": "fa-chalkboard-user",
+  "image": "static/media/img/news-first-bell.jpg",
+  "body": "",
+  "related": [
+    "about",
+    "transparency"
+  ]
+}

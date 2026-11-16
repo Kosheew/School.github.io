@@ -1,0 +1,12 @@
+{
+  "title": "Вчителям",
+  "lead": "Методичні матеріали, нормативні документи та ресурси для професійного розвитку педагогів.",
+  "icon": "fa-person-chalkboard",
+  "image": "static/media/img/news-safety-officer.jpg",
+  "body": "",
+  "related": [
+    "grades-5-9",
+    "documents",
+    "useful"
+  ]
+}

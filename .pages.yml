@@ -40,6 +40,10 @@ content:
         label: Текст новини
         type: rich-text
         required: true
+      - name: gallery
+        label: Додаткові фото (галерея під текстом)
+        type: image
+        list: true
       - name: pinned
         label: Закріпити першою на головній
         type: boolean
@@ -177,3 +181,30 @@ content:
           - { name: time, label: Час, type: string }
       - { name: vacancies, label: Вакансії, type: string, list: true }
       - { name: vacancies_note, label: Примітка до вакансій, type: text }
+
+  - name: pages
+    label: Сторінки (Про гімназію, Контакти, Учням…)
+    type: collection
+    path: content/pages
+    format: json
+    view:
+      fields: [title]
+    fields:
+      - { name: title, label: Заголовок, type: string, required: true }
+      - name: lead
+        label: Супровідний текст під заголовком
+        type: text
+        required: true
+      - name: image
+        label: Фото в шапці сторінки
+        type: image
+      - name: body
+        label: Основний текст (поки порожньо — показується «Інформацію ще не додано»)
+        type: rich-text
+      - name: icon
+        label: Іконка (Font Awesome, напр. fa-book)
+        type: string
+      - name: related
+        label: Посилання «Тим часом можна переглянути» (адреси сторінок)
+        type: string
+        list: true

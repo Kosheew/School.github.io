@@ -47,50 +47,53 @@
 </article>
 {% endmacro %}
 
-{# ---------- Список документів ---------- #}
-{% macro doc_list(docs, search=false, filters=false) %}
-<div class="docs" data-docs>
-  {% if search or filters %}
-  <div class="docs__tools" data-reveal>
-    {% if search %}
-    <label class="search">
-      <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-      <input type="search" placeholder="Пошук документа…" aria-label="Пошук документа" data-docs-search>
-      <kbd>/</kbd>
-    </label>
-    {% endif %}
-    {% if filters %}
-    <div class="chips" role="group" aria-label="Розділ">
-      <button class="chip is-active" type="button" data-docs-filter="">Усі</button>
-      {% for key, label in sections.items() %}
-        {% if docs | selectattr("section", "equalto", key) | list %}
-        <button class="chip" type="button" data-docs-filter="{{ key }}">{{ label }}</button>
-        {% endif %}
-      {% endfor %}
-    </div>
-    {% endif %}
-    <p class="docs__count" aria-live="polite" data-docs-count></p>
+{# ---------- Один документ ---------- #}
+{% macro doc_item(d, i=0, show_section=false) %}
+<li class="doc{{ ' doc--new' if d.is_new }}" data-reveal style="--i: {{ i % 8 }}" data-doc data-section="{{ d.section }}" data-title="{{ d.title | lower }}">
+  <span class="doc__icon" aria-hidden="true"><i class="fa-solid fa-file-pdf"></i></span>
+  <div class="doc__main">
+    <p class="doc__title">{{ d.title }}</p>
+    <p class="doc__meta">
+      {% if d.is_new %}<span class="badge badge--pulse"><i class="fa-solid fa-star"></i> Нове</span>{% endif %}
+      {% if show_section %}<span>{{ sections[d.section] }}</span>{% endif %}
+      {% if d.date %}<span><i class="fa-regular fa-calendar"></i> {{ d.date | human_date }}</span>{% endif %}
+      <span>PDF · {{ (d.size_kb / 1024) | round(1) ~ ' МБ' if d.size_kb > 1024 else d.size_kb ~ ' КБ' }}</span>
+    </p>
+  </div>
+  <div class="doc__actions">
+    <a class="btn btn--sm" href="{{ url(d.file) }}" data-pdf data-pdf-title="{{ d.title }}"><i class="fa-regular fa-eye"></i> Переглянути</a>
+    <a class="btn btn--soft btn--sm btn--icon" href="{{ url(d.file) }}" download aria-label="Завантажити: {{ d.title }}"><i class="fa-solid fa-download"></i></a>
+  </div>
+</li>
+{% endmacro %}
+
+{# ---------- Пошук і фільтри над документами ---------- #}
+{% macro doc_tools(docs, filters=false) %}
+<div class="docs__tools" data-reveal>
+  <label class="search">
+    <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+    <input type="search" placeholder="Пошук документа…" aria-label="Пошук документа" data-docs-search>
+    <kbd>/</kbd>
+  </label>
+  {% if filters %}
+  <div class="chips" role="group" aria-label="Розділ">
+    <button class="chip is-active" type="button" data-docs-filter="">Усі <span class="chip__n">{{ docs | length }}</span></button>
+    {% for key, label in sections.items() %}
+      {% set n = docs | selectattr("section", "equalto", key) | list | length %}
+      {% if n %}<button class="chip" type="button" data-docs-filter="{{ key }}">{{ label }} <span class="chip__n">{{ n }}</span></button>{% endif %}
+    {% endfor %}
   </div>
   {% endif %}
+  <p class="docs__count" aria-live="polite" data-docs-count></p>
+</div>
+{% endmacro %}
+
+{# ---------- Список документів ---------- #}
+{% macro doc_list(docs, search=false) %}
+<div class="docs" data-docs>
+  {% if search %}{{ doc_tools(docs) }}{% endif %}
   <ul class="doc-list">
-    {% for d in docs %}
-    <li class="doc{{ ' doc--new' if d.is_new }}" data-reveal style="--i: {{ loop.index0 % 8 }}" data-doc data-section="{{ d.section }}" data-title="{{ d.title | lower }}">
-      <span class="doc__icon" aria-hidden="true"><i class="fa-solid fa-file-pdf"></i></span>
-      <div class="doc__main">
-        <p class="doc__title">{{ d.title }}</p>
-        <p class="doc__meta">
-          {% if d.is_new %}<span class="badge badge--pulse"><i class="fa-solid fa-star"></i> Нове</span>{% endif %}
-          {% if filters %}<span>{{ sections[d.section] }}</span>{% endif %}
-          {% if d.date %}<span><i class="fa-regular fa-calendar"></i> {{ d.date | human_date }}</span>{% endif %}
-          <span>PDF · {{ (d.size_kb / 1024) | round(1) ~ ' МБ' if d.size_kb > 1024 else d.size_kb ~ ' КБ' }}</span>
-        </p>
-      </div>
-      <div class="doc__actions">
-        <a class="btn btn--sm" href="{{ url(d.file) }}" data-pdf data-pdf-title="{{ d.title }}"><i class="fa-regular fa-eye"></i> Переглянути</a>
-        <a class="btn btn--soft btn--sm btn--icon" href="{{ url(d.file) }}" download aria-label="Завантажити: {{ d.title }}"><i class="fa-solid fa-download"></i></a>
-      </div>
-    </li>
-    {% endfor %}
+    {% for d in docs %}{{ doc_item(d, loop.index0) }}{% endfor %}
   </ul>
   <p class="docs__empty" hidden data-docs-empty><i class="fa-regular fa-face-frown"></i> Нічого не знайдено. Спробуйте інше слово.</p>
 </div>

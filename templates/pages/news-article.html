@@ -24,6 +24,14 @@
   <div class="container container--narrow">
     <div class="prose article__body" data-reveal>{{ item.body | fix_links | safe }}</div>
 
+    {% if item.gallery %}
+    <div class="article__gallery">
+      {% for g in item.gallery %}
+      <img src="{{ url(g) }}" alt="Фото {{ loop.index }}: {{ item.title }}" loading="lazy" data-zoom data-reveal style="--i: {{ loop.index0 }}">
+      {% endfor %}
+    </div>
+    {% endif %}
+
     {% if item.link %}
     <p><a class="btn btn--lg" href="{{ url(item.link.url) }}" data-magnetic>{{ item.link.label or "Детальніше" }} <i class="fa-solid fa-arrow-right"></i></a></p>
     {% endif %}
