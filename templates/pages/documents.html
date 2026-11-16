@@ -1,0 +1,10 @@
+{% extends "layouts/base.html" %}
+{% import "partials/macros.html" as m %}
+{% block main %}
+{{ m.hero("Документи", "Усі офіційні документи гімназії. Шукайте за назвою або оберіть розділ.", "static/media/img/ukrainian-language.jpg", [("Документи", None)]) }}
+<section class="section">
+  <div class="container">
+    {{ m.doc_list(site.documents | unique(attribute="file") | list, search=true, filters=true) }}
+  </div>
+</section>
+{% endblock %}

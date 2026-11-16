@@ -1,0 +1,4 @@
+/* Дрібні правки під окремі сторінки */
+[data-page="home"] .section:first-of-type { padding-top: var(--space-7); }
+.news-grid--archive .news-card { height: 100%; }
+[data-page="documents"] .doc-list { gap: 10px; }

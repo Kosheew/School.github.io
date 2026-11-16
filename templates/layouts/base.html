@@ -1,0 +1,165 @@
+{% import "partials/macros.html" as m %}
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  {% set full_title = (title ~ " — " ~ s.name) if title else s.name %}
+  <title>{{ full_title }}</title>
+  <meta name="description" content="{{ description }}">
+  <link rel="canonical" href="{{ absolute(path) }}">
+  <meta name="theme-color" content="#222601">
+  <meta property="og:type" content="{{ 'article' if item is defined else 'website' }}">
+  <meta property="og:site_name" content="{{ s.name }}">
+  <meta property="og:title" content="{{ title or s.name }}">
+  <meta property="og:description" content="{{ description }}">
+  <meta property="og:url" content="{{ absolute(path) }}">
+  <meta property="og:image" content="{{ absolute(og_image if og_image is defined else s.hero_image) }}">
+  <meta property="og:locale" content="uk_UA">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="{{ url('static/favicon.svg') }}" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@500;600;700&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="{{ asset('static/css/site.css') }}">
+  <script>
+    /* тема до першого кадру — без «блимання» */
+    try { var t = localStorage.getItem("theme"); if (t === "dark" || t === "light") document.documentElement.dataset.theme = t; } catch (e) {}
+    document.documentElement.classList.add("js");
+    /* запобіжник: якщо site.js не завантажився, показуємо вміст без анімацій */
+    setTimeout(function () { if (!window.SITE_READY) document.documentElement.classList.remove("js"); }, 2500);
+  </script>
+  <script src="{{ asset('static/js/site.js') }}" defer></script>
+  {% block head %}{% endblock %}
+  <script type="application/ld+json">{{ {"@context": "https://schema.org", "@type": "School", "name": s.name, "url": s.site_url, "image": absolute(s.hero_image)} | tojson }}</script>
+</head>
+<body data-page="{{ page }}">
+  <a class="skip" href="#main">Перейти до змісту</a>
+  <div class="progress" aria-hidden="true"></div>
+
+  {% if s.announcement.enabled and s.announcement.text %}
+  <div class="announce">
+    <div class="container announce__inner">
+      <span class="announce__dot" aria-hidden="true"></span>
+      {% if s.announcement.url %}<a href="{{ url(s.announcement.url) }}">{{ s.announcement.text }} <i class="fa-solid fa-arrow-right"></i></a>
+      {% else %}<span>{{ s.announcement.text }}</span>{% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+  <header class="header" data-header>
+    <div class="container header__inner">
+      <a class="brand" href="{{ page_url('home') }}" aria-label="{{ s.name }} — на головну">
+        <span class="brand__mark" aria-hidden="true">7</span>
+        <span class="brand__text">{{ s.short_name }}<small>{{ s.honorific }}</small></span>
+      </a>
+
+      <nav class="nav" id="nav" aria-label="Головне меню" data-nav>
+        <ul class="nav__list">
+          {% for item in nav %}
+            {% if item.children is defined %}
+              {% set ns = namespace(active=false) %}
+              {% for sub in item.children %}{% if sub.page is defined and sub.page == page %}{% set ns.active = true %}{% endif %}{% endfor %}
+              <li class="nav__item has-sub{{ ' is-current' if ns.active }}">
+                <button class="nav__link" type="button" aria-expanded="false" data-sub-toggle>
+                  {{ item.label }} <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+                </button>
+                <div class="sub"><ul class="sub__list">
+                  {% for sub in item.children %}
+                    {% if sub.external is defined %}
+                    <li><a class="sub__link" href="{{ s[sub.external] }}" target="_blank" rel="noopener"><i class="fa-solid {{ sub.icon }}"></i><span>{{ sub.label }}</span><i class="fa-solid fa-arrow-up-right-from-square sub__ext"></i></a></li>
+                    {% else %}
+                    <li><a class="sub__link" href="{{ page_url(sub.page) }}"{% if sub.page == page %} aria-current="page"{% endif %}><i class="fa-solid {{ sub.icon }}"></i><span>{{ sub.label }}</span></a></li>
+                    {% endif %}
+                  {% endfor %}
+                </ul></div>
+              </li>
+            {% else %}
+              <li class="nav__item"><a class="nav__link" href="{{ page_url(item.page) }}"{% if item.page == page %} aria-current="page"{% endif %}>{{ item.label }}</a></li>
+            {% endif %}
+          {% endfor %}
+        </ul>
+      </nav>
+
+      <div class="header__tools">
+        <button class="icon-btn" type="button" data-theme-toggle aria-label="Змінити тему">
+          <i class="fa-solid fa-moon theme-moon"></i><i class="fa-solid fa-sun theme-sun"></i>
+        </button>
+        <button class="icon-btn burger" type="button" aria-controls="nav" aria-expanded="false" aria-label="Меню" data-burger>
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+  <div class="scrim" data-scrim></div>
+
+  <main id="main">
+    {% block main %}{% endblock %}
+  </main>
+
+  <footer class="footer">
+    <div class="footer__glow" aria-hidden="true"></div>
+    <div class="container">
+      <div class="footer__grid">
+        <div>
+          <a class="brand brand--light" href="{{ page_url('home') }}">
+            <span class="brand__mark" aria-hidden="true">7</span>
+            <span class="brand__text">{{ s.short_name }}<small>{{ s.honorific }}</small></span>
+          </a>
+          <p class="footer__tagline">{{ s.tagline }}</p>
+          {% set c = s.contacts %}
+          {% if c.address or c.phone or c.email %}
+          <ul class="footer__contacts">
+            {% if c.address %}<li><i class="fa-solid fa-location-dot"></i> {{ c.address }}</li>{% endif %}
+            {% if c.phone %}<li><i class="fa-solid fa-phone"></i> <a href="tel:{{ c.phone | replace(' ', '') }}">{{ c.phone }}</a></li>{% endif %}
+            {% if c.email %}<li><i class="fa-solid fa-envelope"></i> <a href="mailto:{{ c.email }}">{{ c.email }}</a></li>{% endif %}
+          </ul>
+          {% endif %}
+        </div>
+        <div>
+          <h2 class="footer__h">Навчання</h2>
+          <ul>
+            <li><a href="{{ page_url('grades-1-4') }}">1–4 класи</a></li>
+            <li><a href="{{ page_url('grades-5-9') }}">5–9 класи</a></li>
+            <li><a href="{{ s.schedule_url }}" target="_blank" rel="noopener">Розклад уроків</a></li>
+          </ul>
+        </div>
+        <div>
+          <h2 class="footer__h">Підтримка</h2>
+          <ul>
+            <li><a href="{{ page_url('psychologist') }}">Психолог</a></li>
+            <li><a href="{{ page_url('inclusion') }}">Інклюзія</a></li>
+            <li><a href="{{ page_url('bullying') }}">Протидія булінгу</a></li>
+          </ul>
+        </div>
+        <div>
+          <h2 class="footer__h">Інформація</h2>
+          <ul>
+            <li><a href="{{ page_url('news') }}">Новини</a></li>
+            <li><a href="{{ page_url('transparency') }}">Прозорість</a></li>
+            <li><a href="{{ page_url('documents') }}">Усі документи</a></li>
+            <li><a href="{{ page_url('useful') }}">Корисне</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© {{ today.year }} {{ s.name }}</span>
+        <span>Слава Україні! 🇺🇦</span>
+      </div>
+    </div>
+  </footer>
+
+  <button class="to-top" type="button" aria-label="Нагору" data-to-top><i class="fa-solid fa-arrow-up"></i></button>
+
+  <dialog class="modal" data-modal aria-labelledby="modal-title">
+    <div class="modal__bar">
+      <h2 class="modal__title" id="modal-title"></h2>
+      <a class="btn btn--soft btn--sm" data-modal-download hidden download><i class="fa-solid fa-download"></i><span>Завантажити</span></a>
+      <a class="btn btn--soft btn--sm" data-modal-open hidden target="_blank" rel="noopener"><i class="fa-solid fa-up-right-from-square"></i><span>Нова вкладка</span></a>
+      <button class="icon-btn" type="button" data-modal-close aria-label="Закрити"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal__body" data-modal-body></div>
+  </dialog>
+</body>
+</html>

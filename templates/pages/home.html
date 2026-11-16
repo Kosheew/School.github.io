@@ -1,0 +1,104 @@
+{% extends "layouts/base.html" %}
+{% import "partials/macros.html" as m %}
+{% block main %}
+<section class="hero hero--home">
+  <div class="hero__media" data-parallax><img src="{{ url(s.hero_image) }}" alt="" fetchpriority="high"></div>
+  <div class="hero__aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+  <div class="container hero__inner">
+    <p class="eyebrow eyebrow--light">{{ s.honorific }}</p>
+    <h1 class="hero__title hero__title--xl" data-split>Фастівська <em>гімназія №7</em></h1>
+    <p class="hero__lead">{{ s.tagline }} Новини, документи та все про навчання — в одному місці.</p>
+    <div class="hero__actions">
+      <a class="btn btn--accent btn--lg" href="#news" data-magnetic><i class="fa-solid fa-newspaper"></i> Новини гімназії</a>
+      <a class="btn btn--glass btn--lg" href="{{ page_url('documents') }}" data-magnetic><i class="fa-solid fa-folder-open"></i> Документи</a>
+    </div>
+  </div>
+  <a class="scroll-cue" href="#quick" aria-label="Гортати вниз"><span></span></a>
+</section>
+
+{% if s.stats %}
+<div class="container">
+  <dl class="stats" data-reveal>
+    {% for st in s.stats %}
+    <div class="stat">
+      <dt class="stat__label">{{ st.label }}</dt>
+      <dd class="stat__num"><span data-count="{{ st.value }}">{{ st.value }}</span>{{ st.suffix }}</dd>
+    </div>
+    {% endfor %}
+  </dl>
+</div>
+{% endif %}
+
+{% if site.news %}
+<div class="ticker" aria-label="Останні новини">
+  <div class="ticker__track">
+    {% for copy in [false, true] %}
+    <ul class="ticker__list"{% if copy %} aria-hidden="true"{% endif %}>
+      {% for n in site.news[:6] %}
+      <li><a href="{{ url(n.path) }}"{% if copy %} tabindex="-1"{% endif %}><i class="fa-solid fa-star" aria-hidden="true"></i>{{ n.title }}</a></li>
+      {% endfor %}
+    </ul>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<section class="section" id="quick">
+  <div class="container">
+    {{ m.section_head("Швидкий доступ", "Що шукаєте?") }}
+    <div class="tiles">
+      {% set tiles = [
+        (s.schedule_url, "fa-calendar-days", "Розклад уроків", "Актуальний розклад для всіх класів", true),
+        (page_url('grades-1-4'), "fa-shapes", "1–4 класи", "Освітні програми початкової школи", false),
+        (page_url('grades-5-9'), "fa-book-open", "5–9 класи", "Нові правила оцінювання з 01.09.2026", false),
+        (page_url('transparency'), "fa-scale-balanced", "Прозорість", "Рік, прийом, вакансії, звіти", false),
+        (page_url('psychologist'), "fa-hand-holding-heart", "Психолог", "Поради батькам і підтримка дітей", false),
+        (page_url('bullying'), "fa-shield-heart", "Протидія булінгу", "Накази, алгоритми, куди звертатися", false),
+      ] %}
+      {% for href, icon, t, text, ext in tiles %}
+      <a class="tile" href="{{ href }}"{% if ext %} target="_blank" rel="noopener"{% endif %} data-reveal data-tilt data-spotlight style="--i: {{ loop.index0 }}">
+        <span class="tile__icon"><i class="fa-solid {{ icon }}"></i></span>
+        <span class="tile__title">{{ t }}</span>
+        <span class="tile__text">{{ text }}</span>
+        <i class="fa-solid {{ 'fa-arrow-up-right-from-square' if ext else 'fa-arrow-right' }} tile__arrow" aria-hidden="true"></i>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section section--tint" id="news">
+  <div class="container">
+    {{ m.section_head("Життя гімназії", "Новини", "Події, змагання та важливі оголошення.", ("Усі новини", page_url('news'))) }}
+    {% set pinned = site.news | selectattr("pinned") | list %}
+    {% set lead = pinned[0] if pinned else site.news[0] %}
+    <div class="news-grid">
+      {{ m.news_card(lead, featured=true) }}
+      {% for n in site.news if n is not sameas lead %}{% if loop.index <= 6 %}{{ m.news_card(n) }}{% endif %}{% endfor %}
+    </div>
+  </div>
+</section>
+
+{% set important = site.docs("home") + (site.documents | selectattr("is_new") | rejectattr("section", "equalto", "useful") | list) %}
+{% if important %}
+<section class="section">
+  <div class="container">
+    {{ m.section_head("Для батьків і учнів", "Важливі документи", "", ("Усі документи", page_url('documents'))) }}
+    {{ m.doc_list(important) }}
+  </div>
+</section>
+{% endif %}
+
+<section class="section section--cta">
+  <div class="container">
+    <div class="cta" data-reveal data-spotlight>
+      <div>
+        <p class="eyebrow eyebrow--light">Відкритість</p>
+        <h2 class="h2">Усі документи гімназії в одному місці</h2>
+        <p>Статут, освітні програми, накази, харчування, звіти — з пошуком і переглядом прямо на сайті.</p>
+      </div>
+      <a class="btn btn--accent btn--lg" href="{{ page_url('documents') }}" data-magnetic>Відкрити документи <i class="fa-solid fa-arrow-right"></i></a>
+    </div>
+  </div>
+</section>
+{% endblock %}

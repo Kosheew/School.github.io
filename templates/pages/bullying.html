@@ -1,0 +1,27 @@
+{% extends "layouts/base.html" %}
+{% import "partials/macros.html" as m %}
+{% block main %}
+{{ m.hero("Протидія булінгу", "Гімназія — безпечний простір для кожного. Тут зібрані накази, алгоритми дій і контакти допомоги.", "static/media/img/news-kozachata.jpg", [("Виховання", None), ("Протидія булінгу", None)]) }}
+<section class="section">
+  <div class="container stack">
+    <div class="callout" data-reveal data-spotlight>
+      <span class="callout__icon"><i class="fa-solid fa-shield-heart"></i></span>
+      <div>
+        <h2 class="h3">Стикнулися з булінгом? Ви не самі.</h2>
+        <p>Розкажіть класному керівнику, психологу або адміністрації гімназії. Кожне звернення розглядається, а дитина отримує підтримку.</p>
+        <div class="help-grid">
+          <a class="help" href="tel:116111"><strong>116 111</strong><span>Національна дитяча «гаряча» лінія</span></a>
+          <a class="help" href="tel:1547"><strong>1547</strong><span>Урядова лінія з протидії домашньому насильству</span></a>
+          <a class="help" href="{{ page_url('psychologist') }}"><strong><i class="fa-solid fa-hand-holding-heart"></i></strong><span>Психолог гімназії</span></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section section--tint">
+  <div class="container">
+    {{ m.section_head("Документи", "Накази та листи") }}
+    {{ m.doc_list(site.docs("bullying"), search=true) }}
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,97 @@
+{# ---------- Шапка сторінки ---------- #}
+{% macro hero(title, lead="", image=None, crumbs=[], eyebrow="") %}
+<section class="hero hero--page">
+  <div class="hero__media" data-parallax><img src="{{ url(image or s.hero_image) }}" alt="" fetchpriority="high"></div>
+  <div class="hero__aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+  <div class="container hero__inner">
+    <nav class="crumbs" aria-label="Навігація">
+      <a href="{{ page_url('home') }}">Головна</a>
+      {% for c in crumbs %}<span aria-hidden="true">/</span>{% if c[1] %}<a href="{{ c[1] }}">{{ c[0] }}</a>{% else %}<span>{{ c[0] }}</span>{% endif %}{% endfor %}
+    </nav>
+    {% if eyebrow %}<p class="eyebrow eyebrow--light">{{ eyebrow }}</p>{% endif %}
+    <h1 class="hero__title" data-split>{{ title }}</h1>
+    {% if lead %}<p class="hero__lead">{{ lead }}</p>{% endif %}
+    {{ caller() if caller is defined else "" }}
+  </div>
+</section>
+{% endmacro %}
+
+{# ---------- Заголовок секції ---------- #}
+{% macro section_head(eyebrow, title, text="", action=None) %}
+<div class="section-head" data-reveal>
+  <div>
+    <p class="eyebrow">{{ eyebrow }}</p>
+    <h2 class="h2">{{ title }}</h2>
+  </div>
+  {% if text %}<p class="section-head__text">{{ text }}</p>{% endif %}
+  {% if action %}<a class="link-arrow" href="{{ action[1] }}">{{ action[0] }} <i class="fa-solid fa-arrow-right"></i></a>{% endif %}
+</div>
+{% endmacro %}
+
+{# ---------- Картка новини ---------- #}
+{% macro news_card(n, featured=false) %}
+<article class="news-card{{ ' news-card--featured' if featured }}{{ ' news-card--memorial' if n.tone == 'memorial' }}" data-reveal data-spotlight>
+  <a class="news-card__media" href="{{ url(n.path) }}" tabindex="-1" aria-hidden="true">
+    <img src="{{ url(n.image) }}" alt="" loading="{{ 'eager' if featured else 'lazy' }}" style="view-transition-name: news-{{ n.slug }}">
+  </a>
+  <div class="news-card__body">
+    <p class="news-card__meta">
+      <time datetime="{{ n.date.isoformat() }}">{{ n.date | human_date }}</time>
+      <span aria-hidden="true">·</span> {{ n.reading_min }} хв
+      {% if n.pinned %}<span class="badge badge--pulse"><i class="fa-solid fa-thumbtack"></i> Важливо</span>{% endif %}
+    </p>
+    <h3 class="news-card__title"><a href="{{ url(n.path) }}">{{ n.title }}</a></h3>
+    <p class="news-card__excerpt">{{ n.excerpt }}</p>
+    <span class="news-card__more" aria-hidden="true">Читати <i class="fa-solid fa-arrow-right"></i></span>
+  </div>
+</article>
+{% endmacro %}
+
+{# ---------- Список документів ---------- #}
+{% macro doc_list(docs, search=false, filters=false) %}
+<div class="docs" data-docs>
+  {% if search or filters %}
+  <div class="docs__tools" data-reveal>
+    {% if search %}
+    <label class="search">
+      <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+      <input type="search" placeholder="Пошук документа…" aria-label="Пошук документа" data-docs-search>
+      <kbd>/</kbd>
+    </label>
+    {% endif %}
+    {% if filters %}
+    <div class="chips" role="group" aria-label="Розділ">
+      <button class="chip is-active" type="button" data-docs-filter="">Усі</button>
+      {% for key, label in sections.items() %}
+        {% if docs | selectattr("section", "equalto", key) | list %}
+        <button class="chip" type="button" data-docs-filter="{{ key }}">{{ label }}</button>
+        {% endif %}
+      {% endfor %}
+    </div>
+    {% endif %}
+    <p class="docs__count" aria-live="polite" data-docs-count></p>
+  </div>
+  {% endif %}
+  <ul class="doc-list">
+    {% for d in docs %}
+    <li class="doc{{ ' doc--new' if d.is_new }}" data-reveal style="--i: {{ loop.index0 % 8 }}" data-doc data-section="{{ d.section }}" data-title="{{ d.title | lower }}">
+      <span class="doc__icon" aria-hidden="true"><i class="fa-solid fa-file-pdf"></i></span>
+      <div class="doc__main">
+        <p class="doc__title">{{ d.title }}</p>
+        <p class="doc__meta">
+          {% if d.is_new %}<span class="badge badge--pulse"><i class="fa-solid fa-star"></i> Нове</span>{% endif %}
+          {% if filters %}<span>{{ sections[d.section] }}</span>{% endif %}
+          {% if d.date %}<span><i class="fa-regular fa-calendar"></i> {{ d.date | human_date }}</span>{% endif %}
+          <span>PDF · {{ (d.size_kb / 1024) | round(1) ~ ' МБ' if d.size_kb > 1024 else d.size_kb ~ ' КБ' }}</span>
+        </p>
+      </div>
+      <div class="doc__actions">
+        <a class="btn btn--sm" href="{{ url(d.file) }}" data-pdf data-pdf-title="{{ d.title }}"><i class="fa-regular fa-eye"></i> Переглянути</a>
+        <a class="btn btn--soft btn--sm btn--icon" href="{{ url(d.file) }}" download aria-label="Завантажити: {{ d.title }}"><i class="fa-solid fa-download"></i></a>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+  <p class="docs__empty" hidden data-docs-empty><i class="fa-regular fa-face-frown"></i> Нічого не знайдено. Спробуйте інше слово.</p>
+</div>
+{% endmacro %}

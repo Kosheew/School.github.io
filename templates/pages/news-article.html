@@ -1,0 +1,51 @@
+{% extends "layouts/base.html" %}
+{% import "partials/macros.html" as m %}
+{% block main %}
+<article class="article{{ ' article--memorial' if item.tone == 'memorial' }}">
+  <header class="article__head">
+    <div class="container container--narrow">
+      <nav class="crumbs crumbs--dark" aria-label="Навігація">
+        <a href="{{ page_url('home') }}">Головна</a><span aria-hidden="true">/</span><a href="{{ page_url('news') }}">Новини</a>
+      </nav>
+      <p class="article__meta">
+        <time datetime="{{ item.date.isoformat() }}">{{ item.date | human_date }}</time>
+        <span aria-hidden="true">·</span> {{ item.reading_min }} хв читання
+      </p>
+      <h1 class="article__title" data-split>{{ item.title }}</h1>
+    </div>
+  </header>
+
+  <div class="container container--wide">
+    <figure class="article__figure">
+      <img src="{{ url(item.image) }}" alt="" style="view-transition-name: news-{{ item.slug }}" data-zoom>
+    </figure>
+  </div>
+
+  <div class="container container--narrow">
+    <div class="prose article__body" data-reveal>{{ item.body | fix_links | safe }}</div>
+
+    {% if item.link %}
+    <p><a class="btn btn--lg" href="{{ url(item.link.url) }}" data-magnetic>{{ item.link.label or "Детальніше" }} <i class="fa-solid fa-arrow-right"></i></a></p>
+    {% endif %}
+
+    <div class="article__share">
+      <span>Поділитися:</span>
+      <button class="btn btn--soft btn--sm" type="button" data-share data-share-title="{{ item.title }}" data-share-url="{{ absolute(item.path) }}">
+        <i class="fa-solid fa-share-nodes"></i> <span data-share-label>Поділитися</span>
+      </button>
+      <a class="btn btn--soft btn--sm btn--icon" href="https://www.facebook.com/sharer/sharer.php?u={{ absolute(item.path) | urlencode }}" target="_blank" rel="noopener" aria-label="Поділитися у Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+      <a class="btn btn--soft btn--sm btn--icon" href="https://t.me/share/url?url={{ absolute(item.path) | urlencode }}&text={{ item.title | urlencode }}" target="_blank" rel="noopener" aria-label="Поділитися у Telegram"><i class="fa-brands fa-telegram"></i></a>
+      <a class="btn btn--soft btn--sm btn--icon" href="viber://forward?text={{ (item.title ~ ' ' ~ absolute(item.path)) | urlencode }}" aria-label="Поділитися у Viber"><i class="fa-brands fa-viber"></i></a>
+    </div>
+
+    <nav class="pager" aria-label="Інші новини">
+      {% if item.next %}
+      <a class="pager__link" href="{{ url(item.next.path) }}"><small><i class="fa-solid fa-arrow-left"></i> Новіша</small><span>{{ item.next.title }}</span></a>
+      {% else %}<span></span>{% endif %}
+      {% if item.prev %}
+      <a class="pager__link pager__link--next" href="{{ url(item.prev.path) }}"><small>Старіша <i class="fa-solid fa-arrow-right"></i></small><span>{{ item.prev.title }}</span></a>
+      {% endif %}
+    </nav>
+  </div>
+</article>
+{% endblock %}

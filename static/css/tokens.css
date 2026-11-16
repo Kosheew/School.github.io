@@ -1,0 +1,57 @@
+/* Дизайн-токени: кольори, типографіка, відступи, тіні, рух.
+   За замовчуванням світла тема; темна вмикається кнопкою в шапці ([data-theme="dark"]). */
+:root {
+  --c-bg: #f6f5ee;
+  --c-bg-2: #edecdf;
+  --c-surface: #ffffff;
+  --c-surface-2: #fbfaf5;
+  --c-ink: #1a1e0b;
+  --c-muted: #5c624a;
+  --c-line: #e2e0d0;
+  --c-brand: #66721f;
+  --c-brand-ink: #ffffff;
+  --c-brand-soft: color-mix(in oklab, var(--c-brand) 14%, transparent);
+  --c-deep: #1e2203;
+  --c-accent: #f4c430;
+  --c-accent-ink: #2a2300;
+  --c-danger: #b4452f;
+  --c-danger-soft: #fbe8e3;
+  --c-ua-blue: #0057b7;
+  --c-ua-yellow: #ffd700;
+
+  --font-body: "Manrope", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-head: "Unbounded", "Manrope", system-ui, sans-serif;
+  --fs-0: clamp(.9rem, .87rem + .1vw, .95rem);
+  --fs-1: clamp(1rem, .96rem + .2vw, 1.08rem);
+  --fs-2: clamp(1.15rem, 1.05rem + .4vw, 1.35rem);
+  --fs-3: clamp(1.4rem, 1.2rem + .9vw, 1.9rem);
+  --fs-4: clamp(1.5rem, 1.1rem + 1.9vw, 2.6rem);
+  --fs-5: clamp(1.8rem, 1rem + 3.6vw, 4.4rem);
+
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 24px;
+  --space-6: 32px; --space-7: 48px; --space-8: clamp(56px, 8vw, 104px);
+
+  --radius-sm: 10px;
+  --radius: 18px;
+  --radius-lg: 28px;
+  --shadow-1: 0 1px 2px rgb(30 34 3 / .06), 0 2px 8px rgb(30 34 3 / .05);
+  --shadow-2: 0 10px 30px rgb(30 34 3 / .10);
+  --shadow-3: 0 28px 70px rgb(30 34 3 / .20);
+
+  --ease-out: cubic-bezier(.16, 1, .3, 1);
+  --ease-spring: cubic-bezier(.34, 1.56, .64, 1);
+  --dur-1: .2s; --dur-2: .4s; --dur-3: .8s;
+
+  --header-h: 72px;
+  --container: 1200px;
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --c-bg: #10120a; --c-bg-2: #161a0e; --c-surface: #1b1f12; --c-surface-2: #20251a;
+  --c-ink: #eef0e2; --c-muted: #a7ac90; --c-line: #2c321e;
+  --c-brand: #b9c65e; --c-brand-ink: #10120a; --c-deep: #0a0c03;
+  --c-danger-soft: #3a1d17;
+  --shadow-1: 0 1px 2px rgb(0 0 0 / .4); --shadow-2: 0 10px 30px rgb(0 0 0 / .45); --shadow-3: 0 28px 70px rgb(0 0 0 / .6);
+  color-scheme: dark;
+}

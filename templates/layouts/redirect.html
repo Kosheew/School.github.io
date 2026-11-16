@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <title>Сторінку перенесено — {{ s.name }}</title>
+  <meta name="robots" content="noindex">
+  <link rel="canonical" href="{{ absolute(path) }}">
+  <meta http-equiv="refresh" content="0; url={{ target }}">
+  <script>location.replace({{ target | tojson }} + location.hash);</script>
+</head>
+<body>
+  <p>Сторінку перенесено: <a href="{{ target }}">{{ target }}</a></p>
+</body>
+</html>
