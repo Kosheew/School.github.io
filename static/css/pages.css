@@ -54,3 +54,80 @@
 @media (max-width: 520px) {
   .empty-state__links { flex-direction: column; align-items: stretch; width: 100%; }
 }
+
+/* ---------- Психолог: матеріали ---------- */
+.resources { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: var(--space-5); }
+.resource {
+  --tone: var(--c-brand); --rx: 0deg; --ry: 0deg;
+  position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 12px; padding: 26px;
+  border-radius: var(--radius-lg); background: var(--c-surface); border: 1px solid var(--c-line);
+  transform: perspective(900px) rotateX(var(--rx)) rotateY(var(--ry));
+  transition: transform var(--dur-2) var(--ease-out), box-shadow var(--dur-2);
+}
+.resource::after { /* кольорова «хвиля» у кутку */
+  content: ""; position: absolute; width: 220px; height: 220px; right: -90px; top: -90px; border-radius: 50%;
+  background: color-mix(in oklab, var(--tone) 16%, transparent); transition: scale .6s var(--ease-out); z-index: 0;
+}
+.resource:hover { box-shadow: var(--shadow-3); }
+.resource:hover::after { scale: 1.35; }
+.resource--1 { --tone: #2f8f83; }
+.resource--2 { --tone: #d9a313; }
+.resource__top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.resource__icon {
+  width: 54px; height: 54px; display: grid; place-items: center; border-radius: 17px; font-size: 1.35rem;
+  background: var(--tone); color: #fff; box-shadow: 0 10px 24px color-mix(in oklab, var(--tone) 40%, transparent);
+  transition: transform var(--dur-2) var(--ease-spring);
+}
+.resource:hover .resource__icon { transform: rotate(-10deg) scale(1.08); }
+.resource__kind { font-size: .74rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--c-muted); }
+.resource__title { font-size: 1.2rem; margin: 6px 0 0; }
+.resource__text { color: var(--c-muted); margin: 0; font-size: .95rem; }
+.resource__points { list-style: none; display: grid; gap: 8px; margin: 4px 0 6px; font-size: .92rem; font-weight: 600; }
+.resource__points li { display: flex; gap: 10px; }
+.resource__points li::before { content: ""; flex: none; width: 8px; height: 8px; margin-top: .55em; border-radius: 50%; background: var(--tone); }
+.resource__actions { margin-top: auto; display: flex; gap: 8px; }
+.resource__actions .btn:first-child { flex: 1; --_bg: var(--tone); --_fg: #fff; }
+
+/* ---------- Психолог: дихальна вправа ---------- */
+.breathe {
+  display: grid; grid-template-columns: 1.1fr 1fr; align-items: center; gap: var(--space-7);
+  padding: clamp(24px, 5vw, 56px); border-radius: var(--radius-lg);
+  background: radial-gradient(600px circle at 85% 50%, color-mix(in oklab, #2f8f83 22%, transparent), transparent 65%), var(--c-surface);
+  border: 1px solid var(--c-line);
+}
+.breathe__text p:not(.eyebrow) { color: var(--c-muted); }
+.breathe__stage { position: relative; display: grid; place-items: center; min-height: 320px; }
+.breathe__halo { position: absolute; width: 300px; height: 300px; border-radius: 50%; border: 2px dashed color-mix(in oklab, #2f8f83 45%, transparent); animation: spin 40s linear infinite; }
+.breathe__circle {
+  position: relative; width: 150px; height: 150px; border-radius: 50%; display: grid; place-content: center; text-align: center; gap: 4px;
+  color: #fff; background: radial-gradient(circle at 35% 30%, #5fc2b5, #2f8f83 60%, #1f6b62);
+  box-shadow: 0 0 0 0 rgb(47 143 131 / .35), 0 20px 50px rgb(47 143 131 / .35);
+  transition-property: scale, box-shadow; transition-timing-function: ease-in-out; transition-duration: 1.2s;
+  animation: breathe-idle 4s ease-in-out infinite;
+}
+.breathe.is-running .breathe__circle { animation: none; }
+.breathe__circle[data-phase="in"], .breathe__circle[data-phase="hold"] { scale: 1.75; box-shadow: 0 0 0 30px rgb(47 143 131 / .12), 0 26px 60px rgb(47 143 131 / .4); }
+.breathe__circle[data-phase="out"] { scale: 1; }
+.breathe__phase, .breathe__count { display: block; transition: scale ease-in-out; transition-duration: inherit; }
+.breathe__phase { font: 700 1.25rem/1 var(--font-head); }
+.breathe__count { font-size: .74rem; font-weight: 700; opacity: .9; }
+.breathe__circle[data-phase="in"] .breathe__phase, .breathe__circle[data-phase="hold"] .breathe__phase { scale: .58; }
+.breathe__circle[data-phase="in"] .breathe__count, .breathe__circle[data-phase="hold"] .breathe__count { scale: .58; }
+@keyframes breathe-idle { 50% { scale: 1.06; } }
+@keyframes spin { to { rotate: 360deg; } }
+@media (max-width: 860px) { .breathe { grid-template-columns: 1fr; gap: var(--space-5); } .breathe__stage { min-height: 280px; order: -1; } .breathe__halo { width: 250px; height: 250px; } }
+
+/* ---------- Психолог: принципи ТІП ---------- */
+.principles { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr)); gap: var(--space-4); }
+.principle { position: relative; overflow: hidden; padding: 22px; border-radius: var(--radius); background: var(--c-surface); border: 1px solid var(--c-line); transition: transform var(--dur-2) var(--ease-out), box-shadow var(--dur-2); }
+.principle:hover { transform: translateY(-4px); box-shadow: var(--shadow-2); }
+.principle__icon { width: 46px; height: 46px; display: grid; place-items: center; border-radius: 14px; margin-bottom: 12px; background: color-mix(in oklab, #2f8f83 16%, transparent); color: #2f8f83; font-size: 1.15rem; transition: transform var(--dur-2) var(--ease-spring); }
+.principle:hover .principle__icon { transform: scale(1.12) rotate(-8deg); }
+.principle__title { font-size: 1.02rem; margin-bottom: 6px; }
+.principle p { margin: 0; color: var(--c-muted); font-size: .92rem; }
+@media (max-width: 760px) {
+  .resource { padding: 20px; transform: none; }
+  .principles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .principle { padding: 16px; }
+  .principle p { font-size: .84rem; }
+}

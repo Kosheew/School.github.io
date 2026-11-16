@@ -243,7 +243,7 @@
     opts = opts || {};
     $(".modal__title", modal).textContent = title;
     var dl = $("[data-modal-download]", modal), op = $("[data-modal-open]", modal);
-    dl.hidden = !opts.file; op.hidden = !opts.file;
+    dl.hidden = !opts.file || !!opts.external; op.hidden = !opts.file;
     if (opts.file) { dl.href = opts.file; op.href = opts.file; }
     modal.classList.toggle("modal--image", !!opts.image);
     modalBody.replaceChildren(node);
@@ -276,6 +276,16 @@
       frame.src = a.getAttribute("href") + "#view=FitH";
       frame.title = a.dataset.pdfTitle || "PDF";
       if (openModal(a.dataset.pdfTitle || "Документ", frame, { file: a.getAttribute("href") })) e.preventDefault();
+      return;
+    }
+    // зовнішні документи (Google Диск) — вбудований перегляд працює і на телефонах
+    var emb = e.target.closest("[data-embed]");
+    if (emb && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
+      var ef = document.createElement("iframe");
+      ef.src = emb.dataset.embed;
+      ef.title = emb.dataset.pdfTitle || "Документ";
+      ef.allow = "autoplay";
+      if (openModal(emb.dataset.pdfTitle || "Документ", ef, { file: emb.getAttribute("href"), external: true })) e.preventDefault();
       return;
     }
     var img = e.target.closest("[data-zoom]");
@@ -353,6 +363,48 @@
         .then(function () { label.textContent = "Посилання скопійовано ✓"; })
         .catch(function () { label.textContent = data.url; })
         .finally(function () { setTimeout(function () { label.textContent = "Поділитися"; }, 2500); });
+    });
+  });
+
+  /* ---------------------------------------------------------------- дихальна вправа
+     Вдих 4 с → пауза 2 с → видих 6 с, 5 циклів (з посібника психолога). */
+  $$("[data-breathe]").forEach(function (box) {
+    var btn = $("[data-breathe-toggle]", box);
+    var circle = $("[data-breathe-circle]", box);
+    var phaseEl = $("[data-breathe-phase]", box);
+    var countEl = $("[data-breathe-count]", box);
+    var PHASES = [["in", "Вдих", 4000], ["hold", "Пауза", 2000], ["out", "Видих", 6000]];
+    var CYCLES = 5, timer = null, cycle = 0, step = 0;
+
+    function setLabel(running) {
+      btn.querySelector("span").textContent = running ? "Зупинити" : (cycle >= CYCLES ? "Ще раз" : "Почати вправу");
+      btn.querySelector("i").className = "fa-solid " + (running ? "fa-stop" : "fa-play");
+    }
+    function stop(done) {
+      clearTimeout(timer); timer = null;
+      box.classList.remove("is-running");
+      circle.style.transitionDuration = "1.2s";
+      circle.dataset.phase = "";
+      phaseEl.textContent = done ? "Чудово! 🌿" : "Готові?";
+      countEl.textContent = done ? "Відчуйте спокій" : CYCLES + " циклів";
+      setLabel(false);
+    }
+    function next() {
+      if (step === PHASES.length) { step = 0; cycle++; }
+      if (cycle >= CYCLES) { stop(true); return; }
+      var ph = PHASES[step++];
+      circle.style.transitionDuration = ph[2] + "ms";
+      circle.dataset.phase = ph[0];
+      phaseEl.textContent = ph[1];
+      countEl.textContent = "Цикл " + (cycle + 1) + " з " + CYCLES;
+      timer = setTimeout(next, ph[2]);
+    }
+    btn.addEventListener("click", function () {
+      if (timer) { stop(false); return; }
+      cycle = 0; step = 0;
+      box.classList.add("is-running");
+      setLabel(true);
+      next();
     });
   });
 })();

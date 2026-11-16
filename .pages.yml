@@ -208,3 +208,30 @@ content:
         label: Посилання «Тим часом можна переглянути» (адреси сторінок)
         type: string
         list: true
+
+  - name: psychologist
+    label: Психолог — матеріали
+    type: file
+    path: content/psychologist.json
+    format: json
+    fields:
+      - name: resources
+        label: Матеріали (файли на Google Диску)
+        type: object
+        list: true
+        fields:
+          - { name: title, label: Назва, type: string, required: true }
+          - { name: kind, label: Тип (Інфографіка, Посібник…), type: string }
+          - { name: pages, label: Кількість сторінок, type: number }
+          - { name: icon, label: Іконка (напр. fa-wind), type: string }
+          - { name: description, label: Опис, type: text }
+          - { name: points, label: Що всередині, type: string, list: true }
+          - { name: drive_url, label: Посилання Google Диска (доступ «усі, хто має посилання»), type: string, required: true }
+      - name: principles
+        label: Принципи ТІП
+        type: object
+        list: true
+        fields:
+          - { name: title, label: Назва, type: string }
+          - { name: icon, label: Іконка, type: string }
+          - { name: text, label: Текст, type: text }

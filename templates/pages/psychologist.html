@@ -20,4 +20,70 @@
     </ol>
   </div>
 </section>
+
+{% set p = site.psych %}
+{% if p.resources %}
+<section class="section section--tint" id="materials">
+  <div class="container">
+    {{ m.section_head("Матеріали від психолога", "Корисне для дітей, батьків і вчителів", "Переглядайте прямо на сайті або відкривайте на Google Диску, щоб завантажити чи роздрукувати.") }}
+    <div class="resources">
+      {% for r in p.resources %}
+      <article class="resource resource--{{ loop.index0 % 3 }}" data-reveal data-tilt data-spotlight style="--i: {{ loop.index0 }}">
+        <div class="resource__top">
+          <span class="resource__icon"><i class="fa-solid {{ r.icon or 'fa-file-lines' }}"></i></span>
+          <span class="resource__kind">{{ r.kind }}{% if r.pages %} · {{ r.pages }} {{ 'сторінка' if r.pages == 1 else ('сторінки' if r.pages < 5 else 'сторінок') }}{% endif %}</span>
+        </div>
+        <h3 class="resource__title">{{ r.title }}</h3>
+        <p class="resource__text">{{ r.description }}</p>
+        {% if r.points %}
+        <ul class="resource__points">{% for pt in r.points %}<li>{{ pt }}</li>{% endfor %}</ul>
+        {% endif %}
+        <div class="resource__actions">
+          <a class="btn" href="{{ r.drive_url }}" data-embed="{{ r.drive_url | replace('/view', '/preview') }}" data-pdf-title="{{ r.title }}" target="_blank" rel="noopener"><i class="fa-regular fa-eye"></i> Переглянути</a>
+          <a class="btn btn--soft btn--icon" href="{{ r.drive_url }}" target="_blank" rel="noopener" aria-label="Відкрити на Google Диску: {{ r.title }}"><i class="fa-brands fa-google-drive"></i></a>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<section class="section">
+  <div class="container">
+    <div class="breathe" data-breathe data-reveal>
+      <div class="breathe__text">
+        <p class="eyebrow">Спробуйте просто зараз · 1 хвилина</p>
+        <h2 class="h2">Дихальна вправа</h2>
+        <p>Сядьте зручно, розслабте плечі й щелепу, покладіть одну руку на живіт. Дихайте разом із колом: повільний вдих носом, коротка пауза, довгий видих ротом. Глибоке дихання заспокоює нервову систему і зменшує рівень гормонів стресу.</p>
+        <p class="muted">Вправа з посібника «Практичні вправи для регуляції стану» — 5 спокійних циклів.</p>
+        <button class="btn btn--lg" type="button" data-breathe-toggle data-magnetic><i class="fa-solid fa-play"></i> <span>Почати вправу</span></button>
+      </div>
+      <div class="breathe__stage" aria-live="polite">
+        <div class="breathe__halo"></div>
+        <div class="breathe__circle" data-breathe-circle>
+          <span class="breathe__phase" data-breathe-phase>Готові?</span>
+          <span class="breathe__count" data-breathe-count>5 циклів</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% if p.principles %}
+<section class="section section--tint">
+  <div class="container">
+    {{ m.section_head("Травма-інформований підхід", "6 принципів, які ми застосовуємо", "Як ми будуємо безпечне середовище в гімназії — за інфографікою «4 ключові моменти ТІП».") }}
+    <div class="principles">
+      {% for pr in p.principles %}
+      <div class="principle" data-reveal data-spotlight style="--i: {{ loop.index0 }}">
+        <span class="principle__icon"><i class="fa-solid {{ pr.icon }}"></i></span>
+        <h3 class="principle__title">{{ pr.title }}</h3>
+        <p>{{ pr.text }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
 {% endblock %}

@@ -177,6 +177,7 @@ class Site:
     news: list[News] = field(default_factory=list)
     documents: list[Document] = field(default_factory=list)
     info_pages: list[InfoPage] = field(default_factory=list)
+    psych: dict = field(default_factory=dict)
 
     def docs(self, *sections: str) -> list[Document]:
         return [d for d in self.documents if d.section in sections]
@@ -222,6 +223,12 @@ def load() -> Site:
     settings = read_json(CONTENT / "settings.json")
     year = read_json(CONTENT / "school-year.json")
     site = Site(settings=settings, year=year)
+    psych_file = CONTENT / "psychologist.json"
+    site.psych = read_json(psych_file) if psych_file.exists() else {}
+    site.psych.setdefault("resources", []); site.psych.setdefault("principles", [])
+    for r in site.psych["resources"]:
+        for k in ("title", "drive_url"):
+            need(r, k, psych_file)
 
     for p in sorted((CONTENT / "news").glob("*.json")):
         d = read_json(p)
