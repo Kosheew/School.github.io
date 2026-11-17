@@ -526,6 +526,34 @@
   })();
   window.SchoolCalendar = Cal;
 
+  /* зворотний відлік до канікул: «через 44 дні» / «зараз · ще 12 днів» / «минули» */
+  (function () {
+    var cards = $$("[data-holiday]");
+    if (!cards.length) return;
+    function plural(n, one, few, many) {
+      n = Math.abs(n);
+      if (n % 10 === 1 && n % 100 !== 11) return one;
+      return n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? few : many;
+    }
+    var now = Cal.today.date, nextMarked = false;
+    cards.forEach(function (c) {
+      var start = Cal.parse(c.dataset.start), end = c.dataset.end ? Cal.parse(c.dataset.end) : null;
+      var out = $("[data-countdown]", c), days;
+      if (now >= start && (!end || now <= end)) {
+        c.classList.add("is-now");
+        if (end) { days = Math.round((end - now) / 864e5) + 1; out.textContent = "Зараз · ще " + days + " " + plural(days, "день", "дні", "днів"); }
+        else out.textContent = "Зараз";
+      } else if (now < start) {
+        days = Math.round((start - now) / 864e5);
+        out.textContent = days === 1 ? "Завтра!" : "Через " + days + " " + plural(days, "день", "дні", "днів");
+        if (!nextMarked) { c.classList.add("is-next"); nextMarked = true; }
+      } else {
+        c.classList.add("is-past");
+        out.textContent = "Минули";
+      }
+    });
+  })();
+
   /* ---------------------------------------------------------------- розклад уроків */
   $$("[data-schedule]").forEach(function (box) {
     var btns = $$("[data-class-btn]", box);

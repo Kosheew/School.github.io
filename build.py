@@ -28,7 +28,7 @@ import sys
 import threading
 import time
 from dataclasses import dataclass, field
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlparse
@@ -264,6 +264,14 @@ def prepare_calendar(year: dict, where: Path) -> None:
                          "dates": f"{fmt(h['start'])} — {fmt(h['end'])}"})
     calendar.sort(key=lambda x: x["start"])
     year["calendar"] = calendar
+
+    # канікули для показу на сторінці розкладу (+ літні — з дня після кінця навчального року)
+    year_end = max((parse_date(sm.get("end"), where) for sm in year.get("semesters") or [] if sm.get("end")), default=None)
+    holiday_list = [dict(h, days=(h["end"] - h["start"]).days + 1) for h in holidays]
+    if year_end:
+        holiday_list.append({"title": "Літні канікули", "start": year_end + timedelta(days=1), "end": None,
+                             "emoji": "☀️", "days": None})
+    year["holiday_list"] = holiday_list
     # те, що потрібно браузеру, щоб визначити «сьогодні»: канікули й чергування тижнів
     sem_dates = [(parse_date(sm.get("start"), where), parse_date(sm.get("end"), where)) for sm in year.get("semesters") or []]
     year_start = min((st for st, _ in sem_dates if st), default=None)
@@ -448,7 +456,13 @@ def build(base: str, *, dev: bool = False) -> None:
         import zlib
         return zlib.crc32(name.lower().encode("utf-8")) % 360
 
-    env.filters.update(human_date=human_date, fix_links=fix_links, hue=subject_hue)
+    def plural(n: int, one: str, few: str, many: str) -> str:
+        n = abs(int(n))
+        if n % 10 == 1 and n % 100 != 11:
+            return one
+        return few if 2 <= n % 10 <= 4 and not 12 <= n % 100 <= 14 else many
+
+    env.filters.update(human_date=human_date, fix_links=fix_links, hue=subject_hue, plural=plural)
     env.globals.update(
         site=site, s=s, nav=NAV, sections=SECTIONS, url=url, page_url=page_url, page_title=page_title, absolute=absolute,
         asset=lambda p: f"{url(p)}?v={version}", dev=dev, today=date.today(),

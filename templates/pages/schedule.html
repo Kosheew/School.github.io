@@ -22,6 +22,29 @@
 
     <div class="schedule" data-schedule data-active-day="0" data-week="">
       <div class="week-status" data-week-status hidden></div>
+
+      {% set hl = site.year.holiday_list %}
+      {% if hl %}
+      <section class="holidays" aria-labelledby="holidays-title" data-reveal>
+        <h2 class="holidays__title" id="holidays-title"><i class="fa-solid fa-umbrella-beach"></i> Канікули {{ site.year.year }}</h2>
+        <div class="holidays__list">
+          {% for h in hl %}
+          <article class="holiday" data-holiday data-start="{{ h.start.isoformat() }}"{% if h.end %} data-end="{{ h.end.isoformat() }}"{% endif %}>
+            <span class="holiday__emoji" aria-hidden="true">{{ h.emoji or "🏖️" }}</span>
+            <div class="holiday__body">
+              <h3 class="holiday__name">{{ h.title }}</h3>
+              <p class="holiday__dates">
+                {% if h.end %}{{ h.start.day }} {{ (h.start | human_date).split(" ")[1] }}{% if h.start.year != h.end.year %} {{ h.start.year }}{% endif %} — {{ h.end | human_date }}
+                {% else %}з {{ h.start | human_date }}{% endif %}
+              </p>
+              {% if h.days %}<p class="holiday__len">{{ h.days }} {{ h.days | plural("день", "дні", "днів") }}</p>{% endif %}
+            </div>
+            <span class="holiday__count" data-countdown></span>
+          </article>
+          {% endfor %}
+        </div>
+      </section>
+      {% endif %}
       <div class="schedule__picker" data-reveal>
         {% for label, lo, hi in [("Початкова школа", 1, 4), ("Базова школа", 5, 9)] %}
           {% set group = [] %}

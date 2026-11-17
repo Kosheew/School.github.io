@@ -158,3 +158,30 @@ a.week-status:hover .week-status__go i { transform: translateX(5px); }
   .week-status__main { font-size: .95rem; }
   .week-status__go { display: none; }
 }
+
+/* ---------- Канікули ---------- */
+.holidays { padding: 18px 20px 20px; border-radius: var(--radius); background: var(--c-surface); border: 1px solid var(--c-line); }
+.holidays__title { display: flex; align-items: center; gap: 10px; font-size: 1.05rem; margin-bottom: 14px; }
+.holidays__title i { color: var(--c-brand); }
+.holidays__list { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 10px; }
+.holiday {
+  position: relative; display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 4px 14px;
+  padding: 14px 16px; border-radius: 16px; background: var(--c-surface-2); border: 1px solid var(--c-line);
+  transition: transform var(--dur-2) var(--ease-out), box-shadow var(--dur-2), opacity var(--dur-2);
+}
+.holiday:hover { transform: translateY(-3px); box-shadow: var(--shadow-1); }
+.holiday__emoji { grid-row: span 2; width: 50px; height: 50px; display: grid; place-items: center; border-radius: 15px; background: var(--c-surface); font-size: 1.6rem; box-shadow: var(--shadow-1); transition: transform var(--dur-2) var(--ease-spring); }
+.holiday:hover .holiday__emoji { transform: rotate(-10deg) scale(1.08); }
+.holiday__name { font-size: .98rem; margin: 0; }
+.holiday__dates { margin: 2px 0 0; font-weight: 700; font-size: .9rem; }
+.holiday__len { margin: 0; font-size: .8rem; color: var(--c-muted); font-weight: 600; }
+.holiday__count { grid-column: 2; justify-self: start; margin-top: 6px; padding: 3px 10px; border-radius: 999px; font-size: .76rem; font-weight: 800; background: var(--c-bg-2); color: var(--c-muted); }
+.holiday__count:empty { display: none; }
+.holiday.is-next { border-color: color-mix(in oklab, var(--c-accent) 70%, transparent); background: color-mix(in oklab, var(--c-accent) 10%, var(--c-surface-2)); }
+.holiday.is-next .holiday__count { background: var(--c-accent); color: var(--c-accent-ink); }
+.holiday.is-now { border-color: #2f8f83; background: color-mix(in oklab, #2f8f83 12%, var(--c-surface-2)); }
+.holiday.is-now .holiday__count { background: #2f8f83; color: #fff; animation: pulse-ring 2.4s ease-in-out infinite; }
+.holiday.is-now .holiday__emoji { animation: float 3s ease-in-out infinite; }
+.holiday.is-past { opacity: .55; }
+.holiday.is-past .holiday__dates { text-decoration: line-through; text-decoration-thickness: 1px; }
+@media print { .holidays, .week-status { display: none !important; } }
