@@ -52,7 +52,7 @@
       e.preventDefault();
       try { sessionStorage.setItem("nav", "1"); } catch (err) {}
       root.classList.add("is-leaving");
-      setTimeout(function () { location.href = u.href; }, 360);
+      setTimeout(function () { location.href = u.href; }, 280);
     });
     // повернення кнопкою «Назад» з кешу браузера — прибрати шторку
     addEventListener("pageshow", function (e) { if (e.persisted) root.classList.remove("is-leaving"); });

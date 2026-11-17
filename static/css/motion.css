@@ -5,22 +5,24 @@
    Клік по посиланню (site.js додає .is-leaving): панелі опускаються, по центру — знак «7». */
 .curtain { position: fixed; inset: 0; z-index: 400; display: none; pointer-events: none; }
 .curtain-in .curtain, .is-leaving .curtain { display: flex; }
-.curtain__panel { flex: 1; background: var(--c-deep); transform-origin: 50% 0; animation: curtain-up .6s var(--ease-out) .02s both; }
-.curtain__panel:nth-child(2) { background: #2b3108; animation-delay: .07s; }
-.curtain__panel:nth-child(3) { background: #3b430d; animation-delay: .12s; }
+.curtain__panel { flex: 1; background: var(--c-deep); transform-origin: 50% 0; animation: curtain-up .4s var(--ease-out) both; }
+/* нахлест на 2px: прибирає субпіксельний шов між панелями */
+.curtain__panel:not(:last-child) { margin-right: -2px; }
+.curtain__panel:nth-child(2) { background: #2b3108; animation-delay: .04s; }
+.curtain__panel:nth-child(3) { background: #3b430d; animation-delay: .08s; }
 .curtain__mark {
   position: absolute; left: 50%; top: 50%; translate: -50% -50%;
   width: 76px; height: 76px; border-radius: 24px; display: grid; place-items: center;
   font: 700 2.2rem/1 var(--font-head); color: var(--c-accent-ink);
   background: linear-gradient(135deg, #ffd85c, var(--c-accent) 55%, #e2a90f);
   box-shadow: 0 12px 40px rgb(244 196 48 / .45);
-  animation: mark-out .3s ease both;
+  animation: mark-out .2s ease both;
 }
 .is-leaving .curtain { pointer-events: auto; }
-.is-leaving .curtain__panel { transform-origin: 50% 100%; animation: curtain-down .34s var(--ease-out) both; }
-.is-leaving .curtain__panel:nth-child(2) { animation-delay: .05s; }
-.is-leaving .curtain__panel:nth-child(3) { animation-delay: .1s; }
-.is-leaving .curtain__mark { animation: mark-in .35s var(--ease-spring) .12s both; }
+.is-leaving .curtain__panel { transform-origin: 50% 100%; animation: curtain-down .24s var(--ease-out) both; }
+.is-leaving .curtain__panel:nth-child(2) { animation-delay: .03s; }
+.is-leaving .curtain__panel:nth-child(3) { animation-delay: .06s; }
+.is-leaving .curtain__mark { animation: mark-in .24s var(--ease-spring) .06s both; }
 @keyframes curtain-up { from { scale: 1 1; } to { scale: 1 0; } }
 @keyframes curtain-down { from { scale: 1 0; } to { scale: 1 1; } }
 @keyframes mark-out { from { opacity: 1; scale: 1; } to { opacity: 0; scale: .6; rotate: -12deg; } }
