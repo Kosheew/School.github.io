@@ -174,3 +174,10 @@
   .memory__hud .btn { margin-left: 0; }
   .memory--page .memory__grid[data-level="hard"] { --cols: 4 !important; }
 }
+
+/* вузькі телефони: емодзі рівня над словом, щоб три кнопки вміщались */
+@media (max-width: 420px) {
+  .memory--page { padding: 14px; }
+  .level-btn { display: grid; justify-items: center; gap: 2px; padding: 7px 4px; font-size: .76rem; white-space: normal; }
+  .level-btn > span { font-size: 1.15rem; }
+}
