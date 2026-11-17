@@ -522,9 +522,208 @@
         el.hidden = false;
       });
     }
-    return { today: today, weekOf: weekOf, holidayOn: holidayOn, status: status, parse: parse };
+    return { today: today, weekOf: weekOf, holidayOn: holidayOn, status: status, parse: parse, raw: cal, fmt: fmt };
   })();
   window.SchoolCalendar = Cal;
+
+  function pluralDays(n) {
+    n = Math.abs(n);
+    if (n % 10 === 1 && n % 100 !== 11) return "день";
+    return n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? "дні" : "днів";
+  }
+
+  /* ---------------------------------------------------------------- привітання на головній */
+  (function () {
+    var el = $("[data-hello]");
+    if (!el) return;
+    var s = Cal.today, now = new Date(), h = now.getHours();
+    var WD = ["Неділя", "Понеділок", "Вівторок", "Середа", "Четвер", "Пʼятниця", "Субота"];
+    var g;
+    if (s.holiday) g = ["Чудових канікул!", s.holiday.emoji || "🏖️"];
+    else if (s.weekend) g = ["Гарних вихідних!", "🎈"];
+    else if (h >= 5 && h < 12) g = ["Доброго ранку!", "☀️"];
+    else if (h < 18 && h >= 12) g = ["Гарного дня!", "🌤️"];
+    else if (h >= 18 && h < 23) g = ["Доброго вечора!", "🌙"];
+    else g = ["Доброї ночі!", "🌌"];
+
+    var chips = [];
+    if (s.schoolDay && s.week) chips.push(["📅", "Зараз тиждень " + s.week, "wk-" + s.week.toLowerCase()]);
+    else if (!s.holiday && s.resumeWeek) chips.push(["📅", "З понеділка тиждень " + s.resumeWeek, "wk-" + s.resumeWeek.toLowerCase()]);
+
+    // найближчі канікули та літо
+    var raw = Cal.raw, today = s.date, items = (raw.holidays || []).slice();
+    if (raw.yearEnd) {
+      var after = Cal.parse(raw.yearEnd); after.setDate(after.getDate() + 1);
+      items.push({ title: "Літні канікули", start: after.toISOString().slice(0, 10), emoji: "☀️", summer: true });
+    }
+    var shown = 0;
+    items.forEach(function (it) {
+      if (shown >= 2) return;
+      var st = Cal.parse(it.start), en = it.end ? Cal.parse(it.end) : null, days;
+      if (today >= st && (!en || today <= en)) {
+        if (en) { days = Math.round((en - today) / 864e5) + 1; chips.push([it.emoji || "🏖️", "Канікули ще " + days + " " + pluralDays(days), "now"]); shown++; }
+      } else if (today < st) {
+        days = Math.round((st - today) / 864e5);
+        // «Зимові канікули» → «До зимових канікул»; м'яка група: «Осінні» → «До осінніх»
+        var name = it.summer ? "До літа" : "До " + it.title.toLowerCase()
+          .replace(/^(\S+нн)і канікули$/, "$1іх канікул")
+          .replace(/^(\S+)і канікули$/, "$1их канікул");
+        chips.push([it.emoji || "🏖️", name + " " + days + " " + pluralDays(days), shown ? "" : "next"]);
+        shown++;
+      }
+    });
+
+    el.innerHTML =
+      '<div class="hello__greet"><span class="hello__emoji" aria-hidden="true">' + g[1] + '</span>' +
+      '<div><p class="hello__title">' + g[0] + '</p><p class="hello__date">' + WD[now.getDay()] + ", " + Cal.fmt(now) + "</p></div></div>" +
+      '<a class="hello__chips" href="' + el.dataset.scheduleUrl + '" aria-label="Розклад і канікули">' +
+      chips.map(function (c, i) { return '<span class="hello__chip ' + (c[2] ? "hello__chip--" + c[2] : "") + '" style="--i:' + i + '"><span aria-hidden="true">' + c[0] + "</span>" + c[1] + "</span>"; }).join("") +
+      "</a>";
+    el.hidden = false;
+  })();
+
+  /* ---------------------------------------------------------------- сезонні частинки й шкільні смайлики в банері */
+  (function () {
+    var fx = $("[data-hero-fx]");
+    if (!fx || reduce) return;
+    var m = new Date().getMonth();
+    var season = m === 11 || m <= 1 ? ["❄️", "❄️", "✨"] : m <= 4 ? ["🌸", "🌷", "🌼"] : m <= 7 ? ["☀️", "🌻", "🦋"] : ["🍂", "🍁", "🍃"];
+    var school = ["📚", "✏️", "🎨", "🔬", "⚽", "🎵", "🧮", "🌍", "📐", "💡"];
+    var small = innerWidth < 760;
+    var frag = document.createDocumentFragment();
+    var fallH = fx.getBoundingClientRect().height + 80;
+    for (var i = 0; i < (small ? 9 : 18); i++) {
+      var p = document.createElement("span");
+      p.className = "fx-fall";
+      p.textContent = season[i % season.length];
+      p.style.cssText = "left:" + (Math.random() * 100) + "%;font-size:" + (0.8 + Math.random() * 0.9).toFixed(2) + "rem;" +
+        "--fall:" + fallH + "px;--sway:" + ((Math.random() - 0.5) * 120).toFixed(0) + "px;" +
+        "animation-duration:" + (9 + Math.random() * 10).toFixed(1) + "s;animation-delay:-" + (Math.random() * 18).toFixed(1) + "s";
+      frag.appendChild(p);
+    }
+    for (var j = 0; j < (small ? 4 : 8); j++) {
+      var f = document.createElement("span");
+      f.className = "fx-float";
+      f.textContent = school[(j * 3 + m) % school.length];
+      f.style.cssText = "left:" + (small ? 62 + Math.random() * 32 : 55 + Math.random() * 40) + "%;top:" + (12 + Math.random() * 70) + "%;" +
+        "font-size:" + (1.6 + Math.random() * 1.4).toFixed(2) + "rem;animation-duration:" + (5 + Math.random() * 5).toFixed(1) + "s;" +
+        "animation-delay:-" + (Math.random() * 5).toFixed(1) + "s";
+      frag.appendChild(f);
+    }
+    fx.appendChild(frag);
+  })();
+
+  /* ---------------------------------------------------------------- пасхалка: 5 кліків по «7» на головній — конфеті */
+  (function () {
+    var mark = $(".header .brand__mark");
+    if (!mark || document.body.dataset.page !== "home") return;
+    var clicks = 0, timer;
+    mark.closest("a").addEventListener("click", function (e) {
+      e.preventDefault();
+      clicks++;
+      clearTimeout(timer);
+      timer = setTimeout(function () { clicks = 0; }, 1500);
+      mark.animate([{ transform: "scale(1)" }, { transform: "scale(1.25) rotate(-12deg)" }, { transform: "scale(1)" }], { duration: 260 });
+      if (clicks < 5) return;
+      clicks = 0;
+      if (reduce) return;
+      var r = mark.getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + r.height / 2;
+      var bits = ["🎉", "✨", "💛", "💙", "⭐", "🎈", "📚", "7"];
+      for (var i = 0; i < 46; i++) {
+        var b = document.createElement("span");
+        b.className = "confetti";
+        b.textContent = bits[i % bits.length];
+        b.style.left = x + "px"; b.style.top = y + "px";
+        document.body.appendChild(b);
+        var ang = Math.random() * Math.PI * 2, dist = 120 + Math.random() * 260;
+        var dx = Math.cos(ang) * dist, dy = Math.sin(ang) * dist * 0.7 - 80;
+        b.animate([
+          { transform: "translate(-50%,-50%) scale(.4)", opacity: 1 },
+          { transform: "translate(calc(-50% + " + dx + "px), calc(-50% + " + dy + "px)) rotate(" + (Math.random() * 540 - 270) + "deg) scale(1)", opacity: 1, offset: .7 },
+          { transform: "translate(calc(-50% + " + dx * 1.1 + "px), calc(-50% + " + (dy + 220) + "px)) rotate(" + (Math.random() * 720) + "deg) scale(.8)", opacity: 0 }
+        ], { duration: 1400 + Math.random() * 600, easing: "cubic-bezier(.16,1,.3,1)" }).onfinish = (function (el) { return function () { el.remove(); }; })(b);
+      }
+    });
+  })();
+
+  /* ---------------------------------------------------------------- дзвінки: який урок зараз
+     ?time=09:40 у адресі — перевірка, як сайт виглядає в інший час дня */
+  (function () {
+    var bells = (Cal.raw.bells || []).map(function (b) {
+      var s = b.start.split(":"), e = b.end.split(":");
+      return { n: b.n, start: b.start, end: b.end, s: +s[0] * 60 + +s[1], e: +e[0] * 60 + +e[1] };
+    });
+    if (!bells.length) return;
+    var forced = /[?&]time=(\d{1,2}):(\d{2})/.exec(location.search);
+
+    function minutesNow() {
+      if (forced) return +forced[1] * 60 + +forced[2];
+      var d = new Date();
+      return d.getHours() * 60 + d.getMinutes() + d.getSeconds() / 60;
+    }
+    function ord(n) { return n + "-й"; }
+    function mins(x) { var m = Math.max(1, Math.ceil(x)); return m + " хв"; }
+
+    function state() {
+      if (!Cal.today.schoolDay) return null;
+      var m = minutesNow();
+      if (m < bells[0].s) return { kind: "before", next: bells[0], left: bells[0].s - m };
+      for (var i = 0; i < bells.length; i++) {
+        var b = bells[i], nx = bells[i + 1];
+        if (m >= b.s && m < b.e) return { kind: "lesson", cur: b, left: b.e - m, p: (m - b.s) / (b.e - b.s) };
+        if (nx && m >= b.e && m < nx.s) return { kind: "break", next: nx, prev: b, left: nx.s - m };
+      }
+      return { kind: "after", last: bells[bells.length - 1] };
+    }
+    function text(st) {
+      if (!st) return null;
+      if (st.kind === "before") return ["⏰", "Уроки починаються о " + st.next.start, "До першого дзвінка " + mins(st.left)];
+      if (st.kind === "lesson") return ["🔔", "Зараз " + ord(st.cur.n) + " урок", "До дзвінка " + mins(st.left)];
+      if (st.kind === "break") return ["☕", "Перерва", ord(st.next.n) + " урок о " + st.next.start];
+      return ["🏡", "Уроки на сьогодні завершились", ""];
+    }
+
+    var live = $("[data-bell-live]");
+    var helloChips = $(".hello__chips");
+    function update() {
+      var st = state(), t = text(st);
+      // блок «Розклад дзвінків»
+      $$("[data-bell]").forEach(function (li) {
+        var n = +li.dataset.bell, b = bells.filter(function (x) { return x.n === n; })[0];
+        var m = minutesNow(), on = st && st.kind === "lesson" && st.cur.n === n;
+        li.classList.toggle("is-now", !!on);
+        li.classList.toggle("is-next", !!(st && (st.kind === "break" || st.kind === "before") && st.next.n === n));
+        li.classList.toggle("is-past", !!(st && Cal.today.schoolDay && m >= b.e));
+        li.style.setProperty("--p", on ? st.p.toFixed(3) : 0);
+      });
+      if (live) {
+        live.innerHTML = t ? '<span aria-hidden="true">' + t[0] + "</span> <strong>" + t[1] + "</strong>" + (t[2] ? " · " + t[2] : "") : "";
+        live.hidden = !t;
+      }
+      // поточний урок у таблиці на сьогодні
+      $$(".tt-cell.is-now-lesson, .tt-num.is-now-lesson").forEach(function (el) { el.classList.remove("is-now-lesson"); });
+      if (st && st.kind === "lesson") {
+        var d = (Cal.today.date.getDay() + 6) % 7;
+        $$('.tt-cell[data-day="' + d + '"][data-n="' + st.cur.n + '"], .tt-num[data-n="' + st.cur.n + '"]').forEach(function (el) { el.classList.add("is-now-lesson"); });
+      }
+      // чип на головній
+      if (helloChips) {
+        var chip = $("[data-bell-chip]", helloChips);
+        if (!t || st.kind === "after") { if (chip) chip.remove(); }
+        else {
+          if (!chip) {
+            chip = document.createElement("span");
+            chip.className = "hello__chip hello__chip--bell";
+            chip.setAttribute("data-bell-chip", "");
+            helloChips.insertBefore(chip, helloChips.firstChild);
+          }
+          chip.innerHTML = '<span aria-hidden="true">' + t[0] + "</span>" + t[1] + (t[2] ? " · " + t[2].toLowerCase() : "");
+        }
+      }
+    }
+    update();
+    if (!forced) setInterval(update, 30000);
+  })();
 
   /* зворотний відлік до канікул: «через 44 дні» / «зараз · ще 12 днів» / «минули» */
   (function () {

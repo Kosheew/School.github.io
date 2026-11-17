@@ -295,6 +295,19 @@ def load() -> Site:
     site.schedule.setdefault("classes", []); site.schedule.setdefault("bells", [])
     site.schedule.setdefault("days", ["Понеділок", "Вівторок", "Середа", "Четвер", "П'ятниця"])
     site.schedule["updated_date"] = parse_date(site.schedule.get("updated"), sched_file)
+    # дзвінки: «ГГ:ХХ», кожен урок закінчується до початку наступного
+    bells, prev_end = [], None
+    for x in site.schedule["bells"]:
+        st, en = str(x.get("start", "")).strip().replace(".", ":"), str(x.get("end", "")).strip().replace(".", ":")
+        if not re.fullmatch(r"\d{1,2}:\d{2}", st) or not re.fullmatch(r"\d{1,2}:\d{2}", en):
+            raise ContentError(f"content/schedule.json: дзвінок уроку {x.get('n')} має бути у форматі 08:00 (зараз «{st}»–«{en}»)")
+        st, en = st.zfill(5), en.zfill(5)
+        if en <= st or (prev_end and st < prev_end):
+            raise ContentError(f"content/schedule.json: час уроку {x.get('n')} ({st}–{en}) перетинається з попереднім")
+        bells.append({"n": int(x["n"]), "start": st, "end": en})
+        prev_end = en
+    site.schedule["bells"] = bells
+    site.year.setdefault("calendar_js", {})["bells"] = bells
     psych_file = CONTENT / "psychologist.json"
     site.psych = read_json(psych_file) if psych_file.exists() else {}
     site.psych.setdefault("resources", []); site.psych.setdefault("principles", [])

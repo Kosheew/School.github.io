@@ -45,6 +45,25 @@
         </div>
       </section>
       {% endif %}
+
+      {% if sc.bells %}
+      <section class="bells" aria-labelledby="bells-title" data-bells data-reveal>
+        <div class="bells__head">
+          <h2 class="bells__title" id="bells-title"><span aria-hidden="true">🔔</span> Розклад дзвінків</h2>
+          <p class="bells__live" data-bell-live aria-live="polite"></p>
+        </div>
+        <ol class="bells__list">
+          {% for b in sc.bells %}
+          <li class="bell" data-bell="{{ b.n }}">
+            <span class="bell__n">{{ b.n }}</span>
+            <span class="bell__time">{{ b.start }} – {{ b.end }}</span>
+            <span class="bell__bar" aria-hidden="true"><i></i></span>
+          </li>
+          {% endfor %}
+        </ol>
+        <p class="bells__note muted">Урок — 40 хвилин, перерва — 5 хвилин.</p>
+      </section>
+      {% endif %}
       <div class="schedule__picker" data-reveal>
         {% for label, lo, hi in [("Початкова школа", 1, 4), ("Базова школа", 5, 9)] %}
           {% set group = [] %}
@@ -90,12 +109,12 @@
 
           {% for l in c.lessons %}
             {% set row = loop.index + 1 %}
-            <div class="tt-num" style="grid-row: {{ row }}">
+            <div class="tt-num" data-n="{{ l.n }}" style="grid-row: {{ row }}">
               <span class="tt-num__n">{{ l.n }}</span>
               {% if bells[l.n] is defined %}<span class="tt-num__time">{{ bells[l.n].start }}<br>{{ bells[l.n].end }}</span>{% endif %}
             </div>
             {% for day in l.days %}
-            <div class="tt-cell{{ ' is-empty' if not day }}" data-day="{{ loop.index0 }}" style="grid-row: {{ row }}; grid-column: {{ loop.index + 1 }}; --col: {{ loop.index + 1 }}; --i: {{ row }}">
+            <div class="tt-cell{{ ' is-empty' if not day }}" data-day="{{ loop.index0 }}" data-n="{{ l.n }}" style="grid-row: {{ row }}; grid-column: {{ loop.index + 1 }}; --col: {{ loop.index + 1 }}; --i: {{ row }}">
               {% for e in day %}
               <div class="lesson" style="--h: {{ e.subject | hue }}"{% if e.week is defined %} data-week="{{ e.week }}"{% endif %}>
                 <span class="lesson__name">{{ e.subject }}</span>

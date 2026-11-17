@@ -4,6 +4,8 @@
 <section class="hero hero--home">
   <div class="hero__media" data-parallax><img src="{{ url(s.hero_image) }}" alt="" fetchpriority="high"></div>
   <div class="hero__aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+  {# сезонні частинки (листя / сніг / пелюстки) і шкільні смайлики — малює site.js #}
+  <div class="hero__fx" aria-hidden="true" data-hero-fx></div>
   <div class="container hero__inner">
     <p class="eyebrow eyebrow--light">{{ s.honorific }}</p>
     <h1 class="hero__title hero__title--xl">Фастівська <em>гімназія № 7</em></h1>
@@ -45,20 +47,23 @@
 
 <section class="section" id="quick">
   <div class="container">
-    <a class="week-status week-status--compact" href="{{ page_url('schedule') }}" data-week-status hidden></a>
-    {{ m.section_head("Швидкий доступ", "Що шукаєте?") }}
+    {# привітання за часом доби + тиждень A/B + відлік до канікул (site.js) #}
+    <div class="hello" data-hello data-schedule-url="{{ page_url('schedule') }}" hidden></div>
+    {{ m.section_head("⚡ Швидкий доступ", "Що шукаєте?") }}
     <div class="tiles">
       {% set tiles = [
-        (page_url('schedule'), "fa-calendar-days", "Розклад уроків", "Тиждень і сьогодні для кожного класу", false),
-        (page_url('grades-1-4'), "fa-shapes", "1–4 класи", "Освітні програми початкової школи", false),
-        (page_url('grades-5-9'), "fa-book-open", "5–9 класи", "Нові правила оцінювання з 01.09.2026", false),
-        (page_url('transparency'), "fa-scale-balanced", "Прозорість", "Рік, прийом, вакансії, звіти", false),
-        (page_url('psychologist'), "fa-hand-holding-heart", "Психолог", "Поради батькам і підтримка дітей", false),
-        (page_url('bullying'), "fa-shield-heart", "Протидія булінгу", "Накази, алгоритми, куди звертатися", false),
+        (page_url('schedule'), "📅", "Розклад уроків", "Тиждень, канікули й уроки на сьогодні", false, 45),
+        (page_url('grades-1-4'), "🧸", "1–4 класи", "Освітні програми початкової школи", false, 30),
+        (page_url('grades-5-9'), "📘", "5–9 класи", "Нові правила оцінювання з 01.09.2026", false, 215),
+        (page_url('integrity'), "🎓", "Доброчесність", "Чесне навчання: правила й положення", false, 160),
+        (page_url('psychologist'), "💛", "Психолог", "Поради, вправи, підтримка дітей", false, 50),
+        (page_url('bullying'), "🛡️", "Протидія булінгу", "Куди звертатися, накази, алгоритми", false, 0),
+        (page_url('transparency'), "⚖️", "Прозорість", "Рік, прийом, вакансії, звіти", false, 260),
+        (page_url('documents'), "🗂️", "Документи", "Усі накази й положення з пошуком", false, 100),
       ] %}
-      {% for href, icon, t, text, ext in tiles %}
-      <a class="tile" href="{{ href }}"{% if ext %} target="_blank" rel="noopener"{% endif %} data-reveal data-tilt data-spotlight style="--i: {{ loop.index0 }}">
-        <span class="tile__icon"><i class="fa-solid {{ icon }}"></i></span>
+      {% for href, emoji, t, text, ext, hue in tiles %}
+      <a class="tile" href="{{ href }}"{% if ext %} target="_blank" rel="noopener"{% endif %} data-reveal data-tilt data-spotlight style="--i: {{ loop.index0 }}; --h: {{ hue }}">
+        <span class="tile__icon tile__icon--emoji" aria-hidden="true">{{ emoji }}</span>
         <span class="tile__title">{{ t }}</span>
         <span class="tile__text">{{ text }}</span>
         <i class="fa-solid {{ 'fa-arrow-up-right-from-square' if ext else 'fa-arrow-right' }} tile__arrow" aria-hidden="true"></i>
@@ -70,7 +75,7 @@
 
 <section class="section section--tint" id="news">
   <div class="container">
-    {{ m.section_head("Життя гімназії", "Новини", "Події, змагання та важливі оголошення.", ("Усі новини", page_url('news'))) }}
+    {{ m.section_head("📰 Життя гімназії", "Новини", "Події, змагання та важливі оголошення.", ("Усі новини", page_url('news'))) }}
     {% set pinned = site.news | selectattr("pinned") | list %}
     {% set lead = pinned[0] if pinned else site.news[0] %}
     <div class="news-grid">
@@ -84,7 +89,7 @@
 {% if important %}
 <section class="section">
   <div class="container">
-    {{ m.section_head("Для батьків і учнів", "Важливі документи", "", ("Усі документи", page_url('documents'))) }}
+    {{ m.section_head("📌 Для батьків і учнів", "Важливі документи", "", ("Усі документи", page_url('documents'))) }}
     {{ m.doc_list(important) }}
   </div>
 </section>

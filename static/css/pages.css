@@ -171,3 +171,57 @@
 .map__open { position: absolute; right: 14px; bottom: 14px; box-shadow: var(--shadow-2); }
 .hero--404 .empty-state__art { margin-bottom: var(--space-5); }
 .hero--404 .hero__title { max-width: 20ch; }
+
+/* ---------- Головна: привітання ---------- */
+.hello {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px 24px;
+  margin-bottom: var(--space-7); padding: 18px 22px; border-radius: var(--radius-lg);
+  background: radial-gradient(500px circle at 0% 0%, color-mix(in oklab, var(--c-accent) 22%, transparent), transparent 60%), var(--c-surface);
+  border: 1px solid var(--c-line); box-shadow: var(--shadow-1); animation: rise .5s var(--ease-out) both;
+}
+.hello__greet { display: flex; align-items: center; gap: 14px; }
+.hello__emoji { width: 56px; height: 56px; display: grid; place-items: center; border-radius: 18px; background: var(--c-surface-2); font-size: 1.9rem; box-shadow: var(--shadow-1); animation: wave 2.6s ease-in-out 1s 2; }
+.hello__title { margin: 0; font: 700 1.3rem/1.2 var(--font-head); }
+.hello__date { margin: 2px 0 0; color: var(--c-muted); font-weight: 700; font-size: .9rem; }
+.hello__chips { display: flex; flex-wrap: wrap; gap: 8px; text-decoration: none; color: var(--c-ink); }
+.hello__chips:hover { color: var(--c-ink); }
+.hello__chip {
+  display: inline-flex; align-items: center; gap: 8px; padding: 9px 14px; border-radius: 999px;
+  background: var(--c-surface-2); border: 1px solid var(--c-line); font-weight: 800; font-size: .88rem;
+  animation: rise .5s var(--ease-out) both; animation-delay: calc(.15s + var(--i) * 80ms);
+  transition: transform var(--dur-2) var(--ease-spring), box-shadow var(--dur-2);
+}
+.hello__chips:hover .hello__chip { transform: translateY(-2px); box-shadow: var(--shadow-1); }
+.hello__chip--wk-a { background: #2f8f83; color: #fff; border-color: #2f8f83; }
+.hello__chip--wk-b { background: var(--c-accent); color: var(--c-accent-ink); border-color: var(--c-accent); }
+.hello__chip--next { border-color: color-mix(in oklab, var(--c-accent) 70%, transparent); background: color-mix(in oklab, var(--c-accent) 14%, var(--c-surface-2)); }
+.hello__chip--now { background: #2f8f83; color: #fff; border-color: #2f8f83; }
+@keyframes wave { 0%, 100% { rotate: 0deg; } 20% { rotate: 14deg; } 40% { rotate: -10deg; } 60% { rotate: 10deg; } 80% { rotate: -4deg; } }
+@media (max-width: 600px) {
+  .hello { padding: 16px; margin-bottom: 28px; }
+  .hello__emoji { width: 46px; height: 46px; font-size: 1.5rem; border-radius: 14px; }
+  .hello__title { font-size: 1.12rem; }
+  .hello__chip { font-size: .8rem; padding: 8px 12px; }
+}
+
+/* ---------- Плитки з емодзі ---------- */
+.tile__icon--emoji {
+  font-size: 1.7rem; background: hsl(var(--h, 70) 70% 55% / .14); color: inherit;
+  transition: transform var(--dur-2) var(--ease-spring), background var(--dur-2);
+}
+.tile:hover .tile__icon--emoji { background: hsl(var(--h, 70) 70% 55% / .26); transform: scale(1.15) rotate(-10deg); }
+
+/* ---------- Банер: сезонні частинки й смайлики ---------- */
+.hero__fx { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+.hero__inner { z-index: 1; }
+.fx-fall { position: absolute; top: -40px; opacity: .85; will-change: transform; animation: fx-fall linear infinite; filter: drop-shadow(0 2px 4px rgb(0 0 0 / .25)); }
+.fx-float { position: absolute; opacity: .32; will-change: transform; animation: fx-float ease-in-out infinite alternate; filter: saturate(.9) drop-shadow(0 6px 14px rgb(0 0 0 / .3)); }
+@keyframes fx-fall {
+  0% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  50% { transform: translate3d(var(--sway), calc(var(--fall) * .5), 0) rotate(160deg); }
+  100% { transform: translate3d(calc(var(--sway) * -.4), var(--fall), 0) rotate(340deg); }
+}
+@keyframes fx-float { from { transform: translateY(0) rotate(-6deg); } to { transform: translateY(-18px) rotate(8deg); } }
+
+/* конфеті з пасхалки */
+.confetti { position: fixed; z-index: 500; pointer-events: none; font-size: 1.4rem; }

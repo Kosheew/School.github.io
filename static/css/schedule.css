@@ -201,3 +201,41 @@ a.week-status:hover .week-status__go i { transform: translateX(5px); }
   .holiday:hover { transform: none; }
   .holiday__emoji { width: 42px; height: 42px; font-size: 1.35rem; border-radius: 13px; }
 }
+
+/* ---------- Розклад дзвінків ---------- */
+.bells { padding: 18px 20px 16px; border-radius: var(--radius); background: var(--c-surface); border: 1px solid var(--c-line); }
+.bells__head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; margin-bottom: 14px; }
+.bells__title { display: flex; align-items: center; gap: 10px; margin: 0; font-size: 1.05rem; }
+.bells__live { margin: 0; padding: 6px 12px; border-radius: 999px; background: var(--c-bg-2); font-size: .88rem; font-weight: 600; }
+.bells__live:empty, .bells__live[hidden] { display: none; }
+.bells__list { list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.bell {
+  position: relative; overflow: hidden; display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+  border-radius: 14px; background: var(--c-surface-2); border: 1px solid var(--c-line);
+  transition: background var(--dur-2), border-color var(--dur-2), opacity var(--dur-2);
+}
+.bell__n { flex: none; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; background: var(--c-brand-soft); color: var(--c-brand); font: 700 .9rem/1 var(--font-head); }
+.bell__time { font-weight: 800; font-variant-numeric: tabular-nums; font-size: .95rem; white-space: nowrap; }
+.bell__bar { position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: transparent; }
+.bell__bar i { display: block; height: 100%; width: calc(var(--p, 0) * 100%); background: linear-gradient(90deg, var(--c-accent), #2f8f83); transition: width 1s linear; }
+.bell.is-now { background: color-mix(in oklab, var(--c-accent) 16%, var(--c-surface-2)); border-color: var(--c-accent); }
+.bell.is-now .bell__n { background: var(--c-accent); color: var(--c-accent-ink); animation: pulse-ring 2.4s ease-in-out infinite; }
+.bell.is-next { border-color: color-mix(in oklab, #2f8f83 60%, transparent); }
+.bell.is-next .bell__n { background: #2f8f83; color: #fff; }
+.bell.is-past { opacity: .5; }
+.bells__note { margin: 10px 0 0; font-size: .82rem; }
+.hello__chip--bell { background: var(--c-ink); color: var(--c-bg); border-color: var(--c-ink); }
+
+/* поточний урок у таблиці */
+.tt-cell.is-now-lesson { border-color: var(--c-accent) !important; box-shadow: 0 0 0 3px color-mix(in oklab, var(--c-accent) 35%, transparent); animation: now-glow 2.4s ease-in-out infinite; }
+.tt-num.is-now-lesson .tt-num__n { background: var(--c-accent); color: var(--c-accent-ink); }
+@keyframes now-glow { 50% { box-shadow: 0 0 0 6px color-mix(in oklab, var(--c-accent) 18%, transparent); } }
+
+@media (max-width: 760px) {
+  .bells { padding: 14px; }
+  .bells__list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+  .bell { padding: 9px 10px; gap: 8px; }
+  .bell__time { font-size: .86rem; }
+  .bell__n { width: 26px; height: 26px; font-size: .8rem; }
+}
+@media print { .bells { display: none !important; } }
