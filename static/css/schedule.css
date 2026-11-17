@@ -20,16 +20,20 @@
   box-shadow: 0 8px 20px rgb(30 34 3 / .22); transform: translateY(-2px);
 }
 
-/* ---------- Панель: дні, тиждень A/B, друк ---------- */
-.schedule__bar {
-  position: sticky; top: calc(var(--header-h) + 8px); z-index: 20;
-  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px;
-  padding: 8px; border-radius: 18px; border: 1px solid var(--c-line);
-  background: color-mix(in oklab, var(--c-surface) 88%, transparent);
+/* ---------- Тиждень A/B і друк: звичайний рядок (не липне) ---------- */
+.schedule__tools { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px; min-width: 0; }
+
+/* ---------- Вкладки днів (лише телефон): липнуть до верху, стежать за шапкою ---------- */
+.day-tabs {
+  display: none; position: sticky; z-index: 20; top: calc(var(--header-h) + 6px);
+  gap: 4px; padding: 5px; border-radius: 16px; border: 1px solid var(--c-line);
+  background: color-mix(in oklab, var(--c-surface) 90%, transparent);
   backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
   box-shadow: var(--shadow-1);
+  transition: top var(--dur-2) var(--ease-out);
 }
-.day-tabs { display: flex; gap: 4px; flex: 1 1 auto; }
+/* шапка сховалась при прокрутці вниз — вкладки піднімаються до самого верху, без проміжку */
+body:has(.header.is-hidden) .day-tabs { top: 6px; }
 .day-tab {
   position: relative; flex: 1 1 0; padding: 10px 12px; border: 0; border-radius: 12px; background: none;
   font-weight: 800; color: var(--c-muted); transition: background var(--dur-1), color var(--dur-1);
@@ -37,7 +41,6 @@
 .day-tab[aria-selected="true"] { background: var(--c-ink); color: var(--c-bg); }
 .day-tab.is-today::after { content: ""; position: absolute; left: 50%; bottom: 4px; width: 5px; height: 5px; margin-left: -2.5px; border-radius: 50%; background: var(--c-accent); }
 .day-tab__long { display: none; }
-.schedule__tools { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; min-width: 0; }
 .seg { display: inline-flex; padding: 3px; border-radius: 12px; background: var(--c-bg-2); }
 .seg__btn { padding: 8px 12px; border: 0; border-radius: 9px; background: none; font-weight: 800; font-size: .82rem; color: var(--c-muted); white-space: nowrap; transition: background var(--dur-1), color var(--dur-1); }
 .seg__btn.is-active { background: var(--c-surface); color: var(--c-ink); box-shadow: var(--shadow-1); }
@@ -80,9 +83,7 @@
 
 /* ---------- Десктоп: увесь тиждень, вкладки днів не потрібні ---------- */
 @media (min-width: 900px) {
-  .day-tabs { display: none; }
-  .schedule__bar { justify-content: flex-end; }
-  .schedule__bar:not(:has(.seg)) { display: none; }
+  .day-tabs { display: none !important; }
 }
 
 /* ---------- Телефон і планшет: лише обраний день ---------- */
@@ -99,8 +100,9 @@
   .tt-num__n { width: 34px; height: 34px; font-size: .9rem; }
   .lesson { padding: 11px 12px; }
   .lesson__name { font-size: .98rem; }
-  .schedule__bar { top: calc(var(--header-h) + 6px); }
-  .schedule__tools { width: 100%; justify-content: space-between; }
+  .day-tabs { display: flex; }
+  .day-tab { padding: 9px 4px; }
+  .schedule__tools { justify-content: space-between; }
   .schedule__tools .seg { flex: 1; }
   .seg__btn { flex: 1; padding: 8px 6px; font-size: .78rem; }
   .class-group { padding: 14px; }
@@ -113,7 +115,7 @@
 
 /* ---------- Друк: лише обраний клас, увесь тиждень ---------- */
 @media print {
-  .header, .footer, .announce, .hero, .tabbar, .to-top, .progress, .curtain, .schedule__picker, .schedule__bar, .schedule__note, .scrim, .skip { display: none !important; }
+  .header, .footer, .announce, .hero, .tabbar, .to-top, .progress, .curtain, .schedule__picker, .schedule__tools, .day-tabs, .schedule__note, .scrim, .skip { display: none !important; }
   body { background: #fff; padding: 0; }
   .section { padding: 0; }
   .timetable { box-shadow: none; border: 0; padding: 0; }
@@ -185,3 +187,17 @@ a.week-status:hover .week-status__go i { transform: translateX(5px); }
 .holiday.is-past { opacity: .55; }
 .holiday.is-past .holiday__dates { text-decoration: line-through; text-decoration-thickness: 1px; }
 @media print { .holidays, .week-status { display: none !important; } }
+
+/* телефон: канікули — горизонтальна стрічка з прокруткою пальцем, щоб не відсувати розклад донизу */
+@media (max-width: 760px) {
+  .holidays { padding: 14px 0 14px 14px; }
+  .holidays__title { margin-bottom: 10px; font-size: .98rem; }
+  .holidays__list {
+    display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none;
+    padding: 2px 14px 4px 0; overscroll-behavior-x: contain;
+  }
+  .holidays__list::-webkit-scrollbar { display: none; }
+  .holiday { flex: 0 0 78%; scroll-snap-align: start; padding: 12px 14px; }
+  .holiday:hover { transform: none; }
+  .holiday__emoji { width: 42px; height: 42px; font-size: 1.35rem; border-radius: 13px; }
+}
