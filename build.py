@@ -83,6 +83,7 @@ NAV = [
         {"label": "Учням", "page": "for-students", "icon": "fa-user-graduate"},
         {"label": "Батькам", "page": "for-parents", "icon": "fa-people-roof"},
         {"label": "Вчителям", "page": "for-teachers", "icon": "fa-person-chalkboard"},
+        {"label": "Ігри на перерву", "page": "games", "icon": "fa-gamepad"},
     ]},
     {"label": "Документи", "page": "documents"},
 ]
@@ -103,6 +104,8 @@ PAGES = {
     "psychologist": ("pages/psychologist.html", "psychologist/", "Сторінка психолога", "Поради батькам і підтримка дітей."),
     "integrity": ("pages/integrity.html", "academic-integrity/", "Академічна доброчесність",
                   "Положення, накази, склад комісії та правила академічної доброчесності в гімназії."),
+    "games": ("pages/games.html", "games/", "Ігри на перерву",
+              "Міні-ігри для учнів: «Знайди пару» з рівнями складності, зірочками й рекордами."),
     "schedule": ("pages/schedule.html", "schedule/", "Розклад уроків", "Актуальний розклад уроків для всіх класів: на тиждень і на сьогодні."),
 }
 

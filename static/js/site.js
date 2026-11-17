@@ -757,6 +757,21 @@
     if (!forced) setInterval(update, 30000);
   })();
 
+  /* кнопка «Погратимо?» на розкладі: «⏳ До зимових канікул ще 44 дні…» */
+  (function () {
+    var el = $("[data-play-days]");
+    if (!el) return;
+    var now = Cal.today.date, raw = Cal.raw;
+    if (Cal.today.holiday) { el.textContent = (Cal.today.holiday.emoji || "🏖️") + " Канікули! Саме час пограти"; return; }
+    var hs = (raw.holidays || []).map(function (h) { return { t: h.title, e: h.emoji, s: Cal.parse(h.start) }; });
+    if (raw.yearEnd) { var su = Cal.parse(raw.yearEnd); su.setDate(su.getDate() + 1); hs.push({ t: "літа", e: "☀️", s: su, summer: true }); }
+    hs = hs.filter(function (h) { return h.s > now; }).sort(function (a, b) { return a.s - b.s; });
+    if (!hs.length) return;
+    var h = hs[0], days = Math.round((h.s - now) / 864e5);
+    var name = h.summer ? "літа" : h.t.toLowerCase().replace(/^(\S+нн)і канікули$/, "$1іх канікул").replace(/^(\S+)і канікули$/, "$1их канікул");
+    el.textContent = "⏳ До " + name + " ще " + days + " " + pluralDays(days) + "…";
+  })();
+
   /* зворотний відлік до канікул: «через 44 дні» / «зараз · ще 12 днів» / «минули» */
   (function () {
     var cards = $$("[data-holiday]");

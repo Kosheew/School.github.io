@@ -46,6 +46,15 @@
       </section>
       {% endif %}
 
+      <a class="play-cta" href="{{ page_url('games') }}" data-reveal>
+        <span class="play-cta__emoji" aria-hidden="true">🎮</span>
+        <span class="play-cta__text">
+          <span class="play-cta__title" data-play-days>Канікули вже скоро!</span>
+          <span class="play-cta__sub">Погратимо? «Знайди пару», зірочки й рекорди →</span>
+        </span>
+        <span class="play-cta__go" aria-hidden="true">Грати</span>
+      </a>
+
       {% if sc.bells %}
       <section class="bells" aria-labelledby="bells-title" data-bells data-reveal>
         <div class="bells__head">
@@ -141,26 +150,9 @@
         <a href="{{ s.schedule_url }}" target="_blank" rel="noopener">Джерело: rozklad.org <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
       </p>
 
-      <section class="memory" data-memory data-reveal aria-labelledby="memory-title">
-        <div class="memory__head">
-          <div>
-            <h2 class="memory__title" id="memory-title">🎮 Гра на перерву: знайди пару</h2>
-            <p class="memory__stats"><span>Ходи: <b data-mem-moves>0</b></span><span>Час: <b data-mem-time>0:00</b></span><span>Рекорд: <b data-mem-best>—</b></span></p>
-          </div>
-          <button class="btn btn--soft btn--sm" type="button" data-mem-restart><i class="fa-solid fa-rotate"></i> Ще раз</button>
-        </div>
-        <div class="memory__board">
-          <div class="memory__grid" data-mem-grid></div>
-          <div class="memory__win" data-mem-win hidden>
-            <p data-mem-win-text></p>
-            <button class="btn btn--accent" type="button" data-mem-restart>Зіграти ще 🎲</button>
-          </div>
-        </div>
-      </section>
     </div>
     {% endif %}
   </div>
 </section>
 {% endblock %}
 
-{% block scripts %}<script src="{{ asset('static/js/games.js') }}" defer></script>{% endblock %}

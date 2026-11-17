@@ -1,0 +1,58 @@
+{% extends "layouts/base.html" %}
+{% import "partials/macros.html" as m %}
+{% block main %}
+<section class="hero hero--page hero--games">
+  <div class="hero__aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+  {# сезонні частинки й шкільні смайлики (site.js) #}
+  <div class="hero__fx" aria-hidden="true" data-hero-fx></div>
+  <div class="container hero__inner">
+    <nav class="crumbs" aria-label="Навігація"><a href="{{ page_url('home') }}">Головна</a><span aria-hidden="true">/</span><span>Ігри на перерву</span></nav>
+    <p class="eyebrow eyebrow--light">Перерва — 5 хвилин. Встигнеш? ⏱️</p>
+    <h1 class="hero__title">🎮 Ігри на перерву</h1>
+    <p class="hero__lead">Тренуй памʼять, вибивай зірочки й став рекорди. Без реєстрації — рекорди зберігаються лише на твоєму пристрої.</p>
+  </div>
+</section>
+
+<section class="section section--games">
+  <div class="container">
+    <section class="memory memory--page" data-memory aria-labelledby="memory-title">
+      <div class="memory__head">
+        <div>
+          <h2 class="memory__title" id="memory-title">🃏 Знайди пару</h2>
+          <p class="memory__how">Відкривай по дві картки й запамʼятовуй, де який предмет. Збери всі пари за найменшу кількість ходів!</p>
+        </div>
+        <div class="memory__levels" role="group" aria-label="Складність">
+          <button class="level-btn" type="button" data-mem-level="easy" aria-pressed="false"><span aria-hidden="true">🐣</span> Легко</button>
+          <button class="level-btn" type="button" data-mem-level="normal" aria-pressed="true"><span aria-hidden="true">🦊</span> Нормально</button>
+          <button class="level-btn" type="button" data-mem-level="hard" aria-pressed="false"><span aria-hidden="true">🦁</span> Складно</button>
+        </div>
+      </div>
+
+      <div class="memory__hud">
+        <span class="hud"><span aria-hidden="true">👣</span> Ходи <b data-mem-moves>0</b></span>
+        <span class="hud"><span aria-hidden="true">⏱️</span> Час <b data-mem-time>0:00</b></span>
+        <span class="hud hud--best"><span aria-hidden="true">🏆</span> Рекорд <b data-mem-best>—</b></span>
+        <button class="btn btn--soft btn--sm" type="button" data-mem-restart><i class="fa-solid fa-rotate"></i> Перемішати</button>
+      </div>
+
+      <div class="memory__board">
+        <p class="memory__combo" data-mem-combo aria-live="polite"></p>
+        <div class="memory__grid" data-mem-grid></div>
+        <div class="memory__win" data-mem-win hidden>
+          <div class="memory__stars" data-mem-win-stars aria-hidden="true"></div>
+          <p class="memory__win-title" data-mem-win-text></p>
+          <p class="memory__win-sub" data-mem-win-sub></p>
+          <div class="row row--center">
+            <button class="btn btn--accent btn--lg" type="button" data-mem-restart>Зіграти ще 🎲</button>
+            <a class="btn btn--soft btn--lg" href="{{ page_url('schedule') }}">До розкладу</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <p class="games-note muted" data-reveal>Більше ігор: 🧠 «Розминка дня» і 🍂 «Впіймай листочок» — на <a href="{{ page_url('home') }}">головній сторінці</a>.</p>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}<script src="{{ asset('static/js/games.js') }}" defer></script>{% endblock %}
