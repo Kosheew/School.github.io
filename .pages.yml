@@ -235,3 +235,22 @@ content:
           - { name: title, label: Назва, type: string }
           - { name: icon, label: Іконка, type: string }
           - { name: text, label: Текст, type: text }
+
+  - name: schedule
+    label: Розклад — дзвінки та примітка
+    type: file
+    path: content/schedule.json
+    format: json
+    fields:
+      - name: note
+        label: Примітка над розкладом (необов'язково)
+        type: text
+      - name: bells
+        label: Розклад дзвінків
+        description: Самі уроки оновлюються імпортом з rozklad.org (див. README).
+        type: object
+        list: true
+        fields:
+          - { name: n, label: Урок №, type: number }
+          - { name: start, label: Початок (08:30), type: string }
+          - { name: end, label: Кінець (09:15), type: string }

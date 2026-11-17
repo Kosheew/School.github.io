@@ -41,7 +41,7 @@ STATIC = ROOT / "static"
 DIST = ROOT / "dist"
 
 # Порядок важливий: токени -> база -> макет -> компоненти -> сторінки -> рух -> телефони.
-CSS_BUNDLE = ["tokens.css", "base.css", "layout.css", "components.css", "pages.css", "motion.css", "mobile.css"]
+CSS_BUNDLE = ["tokens.css", "base.css", "layout.css", "components.css", "pages.css", "schedule.css", "motion.css", "mobile.css"]
 
 SECTIONS = {
     "home": "Головне",
@@ -65,7 +65,7 @@ NAV = [
         {"label": "Контакти", "page": "contacts", "icon": "fa-location-dot"},
     ]},
     {"label": "Освітній процес", "children": [
-        {"label": "Розклад уроків", "external": "schedule_url", "icon": "fa-calendar-days"},
+        {"label": "Розклад уроків", "page": "schedule", "icon": "fa-calendar-days"},
         {"label": "1–4 класи", "page": "grades-1-4", "icon": "fa-shapes"},
         {"label": "5–9 класи", "page": "grades-5-9", "icon": "fa-book-open"},
         {"label": "Корисна інформація", "page": "useful", "icon": "fa-lightbulb"},
@@ -98,6 +98,7 @@ PAGES = {
     "useful": ("pages/useful-info.html", "useful-info/", "Корисна інформація", "Критерії оцінювання та матеріали для учнів і батьків."),
     "inclusion": ("pages/inclusion.html", "inclusion/", "Інклюзивна освіта", "Доступність закладу та супровід дітей з ООП."),
     "psychologist": ("pages/psychologist.html", "psychologist/", "Сторінка психолога", "Поради батькам і підтримка дітей."),
+    "schedule": ("pages/schedule.html", "schedule/", "Розклад уроків", "Актуальний розклад уроків для всіх класів: на тиждень і на сьогодні."),
 }
 
 # Старі адреси сайту -> нові (щоб посилання з Facebook, Viber тощо не зламались).
@@ -178,6 +179,7 @@ class Site:
     documents: list[Document] = field(default_factory=list)
     info_pages: list[InfoPage] = field(default_factory=list)
     psych: dict = field(default_factory=dict)
+    schedule: dict = field(default_factory=dict)
 
     def docs(self, *sections: str) -> list[Document]:
         return [d for d in self.documents if d.section in sections]
@@ -223,6 +225,11 @@ def load() -> Site:
     settings = read_json(CONTENT / "settings.json")
     year = read_json(CONTENT / "school-year.json")
     site = Site(settings=settings, year=year)
+    sched_file = CONTENT / "schedule.json"
+    site.schedule = read_json(sched_file) if sched_file.exists() else {}
+    site.schedule.setdefault("classes", []); site.schedule.setdefault("bells", [])
+    site.schedule.setdefault("days", ["Понеділок", "Вівторок", "Середа", "Четвер", "П'ятниця"])
+    site.schedule["updated_date"] = parse_date(site.schedule.get("updated"), sched_file)
     psych_file = CONTENT / "psychologist.json"
     site.psych = read_json(psych_file) if psych_file.exists() else {}
     site.psych.setdefault("resources", []); site.psych.setdefault("principles", [])
@@ -356,7 +363,12 @@ def build(base: str, *, dev: bool = False) -> None:
 
     env = Environment(loader=FileSystemLoader(TEMPLATES), autoescape=select_autoescape(["html", "xml"]),
                       undefined=StrictUndefined, trim_blocks=True, lstrip_blocks=True)
-    env.filters.update(human_date=human_date, fix_links=fix_links)
+    def subject_hue(name: str) -> int:
+        """Сталий колір для предмета: однаковий предмет — однаковий відтінок у всіх класах."""
+        import zlib
+        return zlib.crc32(name.lower().encode("utf-8")) % 360
+
+    env.filters.update(human_date=human_date, fix_links=fix_links, hue=subject_hue)
     env.globals.update(
         site=site, s=s, nav=NAV, sections=SECTIONS, url=url, page_url=page_url, page_title=page_title, absolute=absolute,
         asset=lambda p: f"{url(p)}?v={version}", dev=dev, today=date.today(),
@@ -441,10 +453,10 @@ def serve(port: int, open_browser: bool = True) -> None:
             else:
                 super().send_error(code, message, explain)
 
-    print(f"→ http://localhost:{port}  (Ctrl+C — зупинити; зміни в content/templates/static перезбираються самі)")
+    print(f"→ http://127.0.0.1:{port}  (Ctrl+C — зупинити; зміни в content/templates/static перезбираються самі)")
     if open_browser:
         import webbrowser
-        threading.Timer(0.6, webbrowser.open, args=(f"http://localhost:{port}/",)).start()
+        threading.Timer(0.6, webbrowser.open, args=(f"http://127.0.0.1:{port}/",)).start()
     ThreadingHTTPServer(("127.0.0.1", port), Handler).serve_forever()
 
 

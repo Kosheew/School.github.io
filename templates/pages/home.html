@@ -48,7 +48,7 @@
     {{ m.section_head("Швидкий доступ", "Що шукаєте?") }}
     <div class="tiles">
       {% set tiles = [
-        (s.schedule_url, "fa-calendar-days", "Розклад уроків", "Актуальний розклад для всіх класів", true),
+        (page_url('schedule'), "fa-calendar-days", "Розклад уроків", "Тиждень і сьогодні для кожного класу", false),
         (page_url('grades-1-4'), "fa-shapes", "1–4 класи", "Освітні програми початкової школи", false),
         (page_url('grades-5-9'), "fa-book-open", "5–9 класи", "Нові правила оцінювання з 01.09.2026", false),
         (page_url('transparency'), "fa-scale-balanced", "Прозорість", "Рік, прийом, вакансії, звіти", false),

@@ -401,4 +401,71 @@
       next();
     });
   });
+
+  /* ---------------------------------------------------------------- розклад уроків */
+  $$("[data-schedule]").forEach(function (box) {
+    var btns = $$("[data-class-btn]", box);
+    var tables = $$("[data-class]", box);
+    var dayBtns = $$("[data-day-btn]", box);
+    if (!tables.length) return;
+
+    // сьогодні: Пн=0 … Пт=4; у вихідні показуємо понеділок
+    var wd = new Date().getDay();
+    var today = wd >= 1 && wd <= 5 ? wd - 1 : -1;
+    var day = today >= 0 ? today : 0;
+
+    function replay(table) {
+      if (reduce || !table) return;
+      table.classList.remove("is-entering");
+      void table.offsetWidth; // перезапуск анімації
+      table.classList.add("is-entering");
+    }
+    function activeTable() { return $(".timetable.is-active", box); }
+
+    function setClass(name, animate) {
+      var t = tables.filter(function (x) { return x.dataset.class === name; })[0] || tables[0];
+      tables.forEach(function (x) { x.classList.toggle("is-active", x === t); });
+      btns.forEach(function (b) { b.setAttribute("aria-selected", String(b.dataset.classBtn === t.dataset.class)); });
+      store("schedule-class", t.dataset.class);
+      if (history.replaceState) history.replaceState(null, "", "#" + encodeURIComponent(t.dataset.class));
+      if (animate) replay(t);
+    }
+    function setDay(i, animate) {
+      day = i;
+      box.dataset.activeDay = String(i);
+      dayBtns.forEach(function (b) { b.setAttribute("aria-selected", String(+b.dataset.dayBtn === i)); });
+      if (animate) replay(activeTable());
+    }
+
+    if (today >= 0) {
+      dayBtns.forEach(function (b) { b.classList.toggle("is-today", +b.dataset.dayBtn === today); });
+      $$('.tt-head[data-day="' + today + '"], .tt-cell[data-day="' + today + '"]', box).forEach(function (el) { el.classList.add("is-today"); });
+    }
+
+    btns.forEach(function (b) { b.addEventListener("click", function () { setClass(b.dataset.classBtn, true); }); });
+    dayBtns.forEach(function (b) { b.addEventListener("click", function () { setDay(+b.dataset.dayBtn, true); }); });
+    $$("[data-week-btn]", box).forEach(function (b, _, all) {
+      b.addEventListener("click", function () {
+        box.dataset.week = b.dataset.weekBtn;
+        all.forEach(function (x) { x.classList.toggle("is-active", x === b); });
+      });
+    });
+    $$("[data-print]", box).forEach(function (b) { b.addEventListener("click", function () { window.print(); }); });
+
+    // свайп ліворуч/праворуч по таблиці на телефоні — сусідній день
+    var sx = 0, sy = 0;
+    box.addEventListener("touchstart", function (e) { sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
+    box.addEventListener("touchend", function (e) {
+      if (!e.target.closest(".timetable") || matchMedia("(min-width: 900px)").matches) return;
+      var dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+      if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+      setDay((day + (dx < 0 ? 1 : 4)) % 5, true);
+    }, { passive: true });
+
+    function hashClass() { return decodeURIComponent(location.hash.replace(/^#(class-)?/, "")); }
+    // посилання на інший клас у межах сторінки (#5-Б) — без перезавантаження
+    addEventListener("hashchange", function () { if (hashClass()) setClass(hashClass(), true); });
+    setClass(hashClass() || store("schedule-class") || btns[0].dataset.classBtn, false);
+    setDay(day, false);
+  });
 })();

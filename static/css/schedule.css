@@ -1,0 +1,125 @@
+/* Сторінка «Розклад уроків»: вибір класу, тижнева сітка (десктоп), день-за-днем (телефон), друк. */
+
+.section--schedule { padding-top: var(--space-6); }
+.schedule { display: grid; gap: var(--space-5); }
+
+/* ---------- Вибір класу ---------- */
+.schedule__picker { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: var(--space-4); }
+.class-group { padding: 18px 20px; border-radius: var(--radius); background: var(--c-surface); border: 1px solid var(--c-line); }
+.class-group__label { margin: 0 0 12px; font-size: .74rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--c-muted); }
+.class-group__list { display: flex; flex-wrap: wrap; gap: 8px; }
+.class-btn {
+  min-width: 64px; padding: 12px 16px; border-radius: 14px; border: 1px solid var(--c-line); background: var(--c-surface-2);
+  font: 700 1rem/1 var(--font-head); color: var(--c-ink);
+  transition: background var(--dur-1), color var(--dur-1), border-color var(--dur-1), transform var(--dur-2) var(--ease-spring), box-shadow var(--dur-2);
+}
+.class-btn:hover { border-color: var(--c-brand); transform: translateY(-2px); }
+.class-btn:active { transform: scale(.94); }
+.class-btn[aria-selected="true"] {
+  background: var(--c-ink); color: var(--c-bg); border-color: var(--c-ink);
+  box-shadow: 0 8px 20px rgb(30 34 3 / .22); transform: translateY(-2px);
+}
+
+/* ---------- Панель: дні, тиждень A/B, друк ---------- */
+.schedule__bar {
+  position: sticky; top: calc(var(--header-h) + 8px); z-index: 20;
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 8px; border-radius: 18px; border: 1px solid var(--c-line);
+  background: color-mix(in oklab, var(--c-surface) 88%, transparent);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  box-shadow: var(--shadow-1);
+}
+.day-tabs { display: flex; gap: 4px; flex: 1 1 auto; }
+.day-tab {
+  position: relative; flex: 1 1 0; padding: 10px 12px; border: 0; border-radius: 12px; background: none;
+  font-weight: 800; color: var(--c-muted); transition: background var(--dur-1), color var(--dur-1);
+}
+.day-tab[aria-selected="true"] { background: var(--c-ink); color: var(--c-bg); }
+.day-tab.is-today::after { content: ""; position: absolute; left: 50%; bottom: 4px; width: 5px; height: 5px; margin-left: -2.5px; border-radius: 50%; background: var(--c-accent); }
+.day-tab__long { display: none; }
+.schedule__tools { display: flex; align-items: center; gap: 8px; }
+.seg { display: inline-flex; padding: 3px; border-radius: 12px; background: var(--c-bg-2); }
+.seg__btn { padding: 8px 12px; border: 0; border-radius: 9px; background: none; font-weight: 800; font-size: .82rem; color: var(--c-muted); white-space: nowrap; transition: background var(--dur-1), color var(--dur-1); }
+.seg__btn.is-active { background: var(--c-surface); color: var(--c-ink); box-shadow: var(--shadow-1); }
+
+/* ---------- Таблиця ---------- */
+.timetable { padding: clamp(16px, 3vw, 28px); border-radius: var(--radius-lg); background: var(--c-surface); border: 1px solid var(--c-line); box-shadow: var(--shadow-1); }
+.js .timetable { display: none; }
+.js .timetable.is-active { display: block; }
+.timetable + .timetable { margin-top: var(--space-5); } /* без JS — усі класи підряд */
+.timetable__title { display: flex; align-items: baseline; gap: 10px; font-size: var(--fs-3); margin-bottom: var(--space-4); }
+.timetable__title span { font: 700 .9rem var(--font-body); color: var(--c-muted); }
+.timetable__grid { display: grid; grid-template-columns: 70px repeat(5, minmax(0, 1fr)); gap: 8px; }
+.tt-head { padding: 10px 12px; border-radius: 12px; background: var(--c-bg-2); font-weight: 800; font-size: .86rem; text-align: center; transition: background var(--dur-2), color var(--dur-2); }
+.tt-head--corner { background: none; color: var(--c-muted); font-size: .74rem; text-transform: uppercase; letter-spacing: .08em; align-self: end; }
+.tt-head.is-today { background: var(--c-accent); color: var(--c-accent-ink); }
+.tt-num { grid-column: 1; display: grid; place-content: center; justify-items: center; gap: 4px; text-align: center; }
+.tt-num__n { width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%; background: var(--c-brand-soft); color: var(--c-brand); font: 700 1rem/1 var(--font-head); }
+.tt-num__time { font-size: .72rem; font-weight: 700; color: var(--c-muted); line-height: 1.25; font-variant-numeric: tabular-nums; }
+.tt-cell { display: grid; gap: 6px; align-content: start; min-height: 64px; padding: 6px; border-radius: 14px; background: var(--c-surface-2); border: 1px solid transparent; transition: border-color var(--dur-2), background var(--dur-2); }
+.tt-cell.is-today { border-color: color-mix(in oklab, var(--c-accent) 70%, transparent); background: color-mix(in oklab, var(--c-accent) 8%, var(--c-surface-2)); }
+.tt-cell.is-empty { place-content: center; }
+.lesson-empty { color: var(--c-line); font-weight: 800; text-align: center; }
+.lesson {
+  display: grid; gap: 4px; padding: 9px 11px; border-radius: 10px;
+  background: hsl(var(--h) 65% 50% / .1); border-left: 4px solid hsl(var(--h) 55% 45%);
+  transition: transform var(--dur-2) var(--ease-out), box-shadow var(--dur-2);
+}
+.lesson:hover { transform: translateY(-2px); box-shadow: var(--shadow-1); }
+.lesson__name { font-weight: 800; font-size: .9rem; line-height: 1.25; overflow-wrap: anywhere; }
+.lesson__tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.tag { padding: 2px 7px; border-radius: 999px; font-size: .68rem; font-weight: 800; background: var(--c-surface); color: var(--c-muted); border: 1px solid var(--c-line); white-space: nowrap; }
+.tag--week { background: var(--c-ink); color: var(--c-bg); border-color: var(--c-ink); }
+.schedule[data-week="A"] .lesson[data-week="B"], .schedule[data-week="B"] .lesson[data-week="A"] { display: none; }
+.schedule__note { font-size: .88rem; margin: 0; }
+
+/* поява таблиці при зміні класу / дня */
+.timetable.is-entering .tt-cell, .timetable.is-entering .tt-num { animation: cell-in .45s var(--ease-out) both; animation-delay: calc(var(--i, 1) * 35ms); }
+.timetable.is-entering .tt-num { --i: 1; }
+@keyframes cell-in { from { opacity: 0; translate: 0 10px; scale: .97; } }
+
+/* ---------- Десктоп: увесь тиждень, вкладки днів не потрібні ---------- */
+@media (min-width: 900px) {
+  .day-tabs { display: none; }
+  .schedule__bar { justify-content: flex-end; }
+  .schedule__bar:not(:has(.seg)) { display: none; }
+}
+
+/* ---------- Телефон і планшет: лише обраний день ---------- */
+@media (max-width: 899px) {
+  .timetable__grid { grid-template-columns: 52px minmax(0, 1fr); gap: 8px; }
+  .tt-head { display: none; }
+  .tt-cell { grid-column: 2 !important; min-height: 56px; }
+  .js .schedule[data-active-day="0"] .tt-cell:not([data-day="0"]),
+  .js .schedule[data-active-day="1"] .tt-cell:not([data-day="1"]),
+  .js .schedule[data-active-day="2"] .tt-cell:not([data-day="2"]),
+  .js .schedule[data-active-day="3"] .tt-cell:not([data-day="3"]),
+  .js .schedule[data-active-day="4"] .tt-cell:not([data-day="4"]) { display: none; }
+  .tt-cell.is-today { border-color: transparent; background: var(--c-surface-2); }
+  .tt-num__n { width: 34px; height: 34px; font-size: .9rem; }
+  .lesson { padding: 11px 12px; }
+  .lesson__name { font-size: .98rem; }
+  .schedule__bar { top: calc(var(--header-h) + 6px); }
+  .schedule__tools { width: 100%; justify-content: space-between; }
+  .schedule__tools .seg { flex: 1; }
+  .seg__btn { flex: 1; padding: 8px 6px; font-size: .78rem; }
+  .class-group { padding: 14px; }
+  .class-group__list { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+  .class-btn { min-width: 0; padding: 12px 4px; font-size: .92rem; }
+}
+@media (min-width: 600px) and (max-width: 899px) {
+  .day-tab__short { display: none; } .day-tab__long { display: inline; }
+}
+
+/* ---------- Друк: лише обраний клас, увесь тиждень ---------- */
+@media print {
+  .header, .footer, .announce, .hero, .tabbar, .to-top, .progress, .curtain, .schedule__picker, .schedule__bar, .schedule__note, .scrim, .skip { display: none !important; }
+  body { background: #fff; padding: 0; }
+  .section { padding: 0; }
+  .timetable { box-shadow: none; border: 0; padding: 0; }
+  .timetable__grid { grid-template-columns: 50px repeat(5, 1fr) !important; gap: 4px; }
+  .tt-head { display: block !important; }
+  .tt-cell { display: grid !important; }
+  .tt-cell { grid-column: var(--col) !important; }
+  .lesson { break-inside: avoid; }
+}

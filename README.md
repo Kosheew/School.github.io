@@ -9,12 +9,24 @@
 2. **Новини** → «Додати» або **Документи (PDF)** → «Додати». Заповнити поля, завантажити фото/PDF, «Зберегти».
 3. За 1–2 хвилини зміни з'являться на сайті (вкладка **Actions** показує прогрес).
 
+## Як оновити розклад уроків
+
+1. На rozklad.org експортувати розклад у Excel (файл на кшталт `rozklad (11).xls`).
+2. Виконати в папці сайту:
+   ```bash
+   .venv\Scripts\python tools/import_schedule.py "C:/Users/.../Downloads/rozklad (11).xls"
+   ```
+3. Закомітити `content/schedule.json` і запушити — сторінка `/schedule/` оновиться сама.
+
+Персональні розклади з іменами дітей імпорт пропускає — вони не публікуються.
+Час дзвінків і примітка редагуються в адмінці («Розклад — дзвінки та примітка»).
+
 ## Як запустити локально (для розробника)
 
 ```bash
 python -m venv .venv
 .venv\Scripts\pip install -r requirements.txt     # Windows
-.venv\Scripts\python build.py --serve             # відкриє http://localhost:8000
+.venv\Scripts\python build.py --serve             # відкриє http://127.0.0.1:8000
 ```
 
 Зміни в `content/`, `templates/`, `static/` перезбираються самі — просто оновіть сторінку.
@@ -58,6 +70,7 @@ build.py                    збирач: валідує контент, рен�
 | Корисна інформація | `/useful-info/` | `pages/useful-info.html` |
 | Інклюзія | `/inclusion/` | `pages/inclusion.html` |
 | Психолог | `/psychologist/` | `pages/psychologist.html` |
+| Розклад уроків | `/schedule/` | `pages/schedule.html` |
 
 Старі адреси (`indexPfd.html`, `student 5 - 9.html`, `Bullying.html`…) автоматично переадресовують на нові.
 

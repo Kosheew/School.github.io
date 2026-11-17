@@ -1,0 +1,103 @@
+{% extends "layouts/base.html" %}
+{% import "partials/macros.html" as m %}
+{% block main %}
+{% set sc = site.schedule %}
+{% set short = ["Пн", "Вт", "Ср", "Чт", "Пт"] %}
+{% set bells = {} %}
+{% for b in sc.bells %}{% set _ = bells.update({b.n|int: b}) %}{% endfor %}
+{% set ns = namespace(has_weeks=false) %}
+{% for c in sc.classes %}{% for l in c.lessons %}{% for day in l.days %}{% for e in day %}{% if e.week is defined %}{% set ns.has_weeks = true %}{% endif %}{% endfor %}{% endfor %}{% endfor %}{% endfor %}
+
+{{ m.hero("Розклад уроків", "Оберіть свій клас — і побачите розклад на сьогодні та на весь тиждень." ~ (" Оновлено " ~ (sc.updated_date | human_date) ~ "." if sc.updated_date else ""), "static/media/img/news-first-bell.jpg", [("Освітній процес", None), ("Розклад уроків", None)]) }}
+
+<section class="section section--schedule">
+  <div class="container">
+    {% if not sc.classes %}
+    <div class="empty-state" data-reveal>
+      <div class="empty-state__art" aria-hidden="true"><span class="empty-state__ring"></span><span class="empty-state__ring"></span><i class="fa-solid fa-calendar-days"></i></div>
+      <h2 class="h3">Розклад ще не додано</h2>
+      <p>Скоро тут з'явиться актуальний розклад уроків.</p>
+    </div>
+    {% else %}
+
+    <div class="schedule" data-schedule data-active-day="0" data-week="">
+      <div class="schedule__picker" data-reveal>
+        {% for label, lo, hi in [("Початкова школа", 1, 4), ("Базова школа", 5, 9)] %}
+          {% set group = [] %}
+          {% for c in sc.classes %}{% if lo <= (c.name.split("-")[0] | int) <= hi %}{% set _ = group.append(c) %}{% endif %}{% endfor %}
+          {% if group %}
+          <div class="class-group">
+            <p class="class-group__label">{{ label }}</p>
+            <div class="class-group__list" role="tablist" aria-label="{{ label }}">
+              {% for c in group %}
+              <button class="class-btn" type="button" role="tab" aria-selected="false" data-class-btn="{{ c.name }}">{{ c.name }}</button>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+
+      <div class="schedule__bar" data-reveal>
+        <div class="day-tabs" role="tablist" aria-label="День тижня">
+          {% for d in sc.days %}
+          <button class="day-tab" type="button" role="tab" data-day-btn="{{ loop.index0 }}" aria-selected="{{ 'true' if loop.first else 'false' }}"><span class="day-tab__short">{{ short[loop.index0] }}</span><span class="day-tab__long">{{ d }}</span></button>
+          {% endfor %}
+        </div>
+        <div class="schedule__tools">
+          {% if ns.has_weeks %}
+          <div class="seg" role="group" aria-label="Тиждень">
+            <button class="seg__btn is-active" type="button" data-week-btn="">Усі тижні</button>
+            <button class="seg__btn" type="button" data-week-btn="A">Тиждень A</button>
+            <button class="seg__btn" type="button" data-week-btn="B">Тиждень B</button>
+          </div>
+          {% endif %}
+          <button class="btn btn--soft btn--sm" type="button" data-print><i class="fa-solid fa-print"></i> Друк</button>
+        </div>
+      </div>
+
+      {% for c in sc.classes %}
+      <section class="timetable" id="class-{{ c.name }}" data-class="{{ c.name }}" aria-label="Розклад {{ c.name }}">
+        <h2 class="timetable__title">{{ c.name }} <span>клас</span></h2>
+        <div class="timetable__grid" style="--rows: {{ c.lessons | length }}">
+          <div class="tt-head tt-head--corner">Урок</div>
+          {% for d in sc.days %}<div class="tt-head" data-day="{{ loop.index0 }}" style="grid-column: {{ loop.index + 1 }}">{{ d }}</div>{% endfor %}
+
+          {% for l in c.lessons %}
+            {% set row = loop.index + 1 %}
+            <div class="tt-num" style="grid-row: {{ row }}">
+              <span class="tt-num__n">{{ l.n }}</span>
+              {% if bells[l.n] is defined %}<span class="tt-num__time">{{ bells[l.n].start }}<br>{{ bells[l.n].end }}</span>{% endif %}
+            </div>
+            {% for day in l.days %}
+            <div class="tt-cell{{ ' is-empty' if not day }}" data-day="{{ loop.index0 }}" style="grid-row: {{ row }}; grid-column: {{ loop.index + 1 }}; --col: {{ loop.index + 1 }}; --i: {{ row }}">
+              {% for e in day %}
+              <div class="lesson" style="--h: {{ e.subject | hue }}"{% if e.week is defined %} data-week="{{ e.week }}"{% endif %}>
+                <span class="lesson__name">{{ e.subject }}</span>
+                {% if e.group is defined or e.week is defined %}
+                <span class="lesson__tags">
+                  {% if e.group is defined %}<span class="tag">гр. {{ e.group }}</span>{% endif %}
+                  {% if e.week is defined %}<span class="tag tag--week">тиждень {{ e.week }}</span>{% endif %}
+                </span>
+                {% endif %}
+              </div>
+              {% else %}
+              <span class="lesson-empty" aria-label="Немає уроку">—</span>
+              {% endfor %}
+            </div>
+            {% endfor %}
+          {% endfor %}
+        </div>
+      </section>
+      {% endfor %}
+
+      <p class="schedule__note muted">
+        {% if sc.note %}{{ sc.note }} {% endif %}
+        «гр. 1 / гр. 2» — заняття в підгрупах{% if ns.has_weeks %}; «тиждень A / B» — урок чергується через тиждень{% endif %}.
+        <a href="{{ s.schedule_url }}" target="_blank" rel="noopener">Джерело: rozklad.org <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+      </p>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
