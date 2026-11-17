@@ -271,3 +271,20 @@ content:
           - { name: n, label: Урок №, type: number }
           - { name: start, label: Початок (08:30), type: string }
           - { name: end, label: Кінець (09:15), type: string }
+
+  - name: quiz
+    label: Розминка дня (питання на головній)
+    type: file
+    path: content/quiz.json
+    format: json
+    fields:
+      - { name: title, label: Назва, type: string }
+      - name: questions
+        label: Питання (щодня показується наступне)
+        type: object
+        list: true
+        fields:
+          - { name: q, label: Питання, type: string, required: true }
+          - { name: options, label: Варіанти відповіді, type: string, list: true }
+          - { name: answer, label: "Номер правильного варіанту (перший = 0)", type: number }
+          - { name: topic, label: "Тема з емодзі (напр. 🧮 Математика)", type: string }

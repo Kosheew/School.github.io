@@ -32,6 +32,9 @@
       try { var t = localStorage.getItem("theme"); if (t === "dark" || t === "light") d.dataset.theme = t; } catch (e) {}
       /* шторка відкривається лише після переходу з іншої сторінки сайту, не при першому заході */
       try { if (sessionStorage.getItem("nav") === "1") { d.classList.add("curtain-in"); sessionStorage.removeItem("nav"); } } catch (e) {}
+      /* сезон до першого кадру — колір сяйва в банері одразу правильний */
+      var mo = new Date().getMonth();
+      d.dataset.season = mo === 11 || mo <= 1 ? "winter" : mo <= 4 ? "spring" : mo <= 7 ? "summer" : "autumn";
       d.classList.add("js");
       /* запобіжник: якщо site.js не завантажився, показуємо вміст без анімацій */
       setTimeout(function () { if (!window.SITE_READY) d.classList.remove("js"); }, 1200);
@@ -40,6 +43,7 @@
   {# календар навчального року: канікули й чергування тижнів A/B (site.js визначає «сьогодні») #}
   <script type="application/json" id="school-calendar">{{ site.year.calendar_js | tojson }}</script>
   <script src="{{ asset('static/js/site.js') }}" defer></script>
+  {% block scripts %}{% endblock %}
   {% block head %}{% endblock %}
   <script type="application/ld+json">{{ {"@context": "https://schema.org", "@type": "School", "name": s.name, "url": s.site_url, "image": absolute(s.hero_image)} | tojson }}</script>
 </head>

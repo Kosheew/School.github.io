@@ -16,6 +16,8 @@
     </div>
   </div>
   <a class="scroll-cue" href="#quick" aria-label="Гортати вниз"><span></span></a>
+  {# лічильник гри «Впіймай листочок» (games.js) #}
+  <div class="catch" data-catch aria-live="polite" hidden></div>
 </section>
 
 {% if s.stats %}
@@ -73,6 +75,15 @@
   </div>
 </section>
 
+{% if site.quiz.questions %}
+<section class="section section--quiz">
+  <div class="container">
+    <div class="quiz" data-quiz data-reveal hidden></div>
+    <script type="application/json" id="quiz-data">{{ site.quiz.questions | tojson }}</script>
+  </div>
+</section>
+{% endif %}
+
 <section class="section section--tint" id="news">
   <div class="container">
     {{ m.section_head("📰 Життя гімназії", "Новини", "Події, змагання та важливі оголошення.", ("Усі новини", page_url('news'))) }}
@@ -108,3 +119,5 @@
   </div>
 </section>
 {% endblock %}
+
+{% block scripts %}<script src="{{ asset('static/js/games.js') }}" defer></script>{% endblock %}

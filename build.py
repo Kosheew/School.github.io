@@ -42,7 +42,7 @@ STATIC = ROOT / "static"
 DIST = ROOT / "dist"
 
 # Порядок важливий: токени -> база -> макет -> компоненти -> сторінки -> рух -> телефони.
-CSS_BUNDLE = ["tokens.css", "base.css", "layout.css", "components.css", "pages.css", "schedule.css", "motion.css", "mobile.css"]
+CSS_BUNDLE = ["tokens.css", "base.css", "layout.css", "components.css", "pages.css", "schedule.css", "games.css", "motion.css", "mobile.css"]
 
 SECTIONS = {
     "home": "Головне",
@@ -185,6 +185,7 @@ class Site:
     info_pages: list[InfoPage] = field(default_factory=list)
     psych: dict = field(default_factory=dict)
     schedule: dict = field(default_factory=dict)
+    quiz: dict = field(default_factory=dict)
 
     def docs(self, *sections: str) -> list[Document]:
         return [d for d in self.documents if d.section in sections]
@@ -308,6 +309,12 @@ def load() -> Site:
         prev_end = en
     site.schedule["bells"] = bells
     site.year.setdefault("calendar_js", {})["bells"] = bells
+    quiz_file = CONTENT / "quiz.json"
+    site.quiz = read_json(quiz_file) if quiz_file.exists() else {"questions": []}
+    for i, q in enumerate(site.quiz.get("questions") or [], 1):
+        opts = q.get("options") or []
+        if not q.get("q") or len(opts) < 2 or not isinstance(q.get("answer"), int) or not 0 <= q["answer"] < len(opts):
+            raise ContentError(f"content/quiz.json: питання №{i} — потрібні текст, щонайменше 2 варіанти й номер правильної відповіді (з 0)")
     psych_file = CONTENT / "psychologist.json"
     site.psych = read_json(psych_file) if psych_file.exists() else {}
     site.psych.setdefault("resources", []); site.psych.setdefault("principles", [])
@@ -417,7 +424,7 @@ def build(base: str, *, dev: bool = False) -> None:
     (OUT / "static/css").mkdir(parents=True, exist_ok=True)
     (OUT / "static/css/site.css").write_text(
         "\n".join(f"/* {p.name} */\n" + p.read_text(encoding="utf-8") for p in css_files), encoding="utf-8")
-    version = file_hash(css_files + [STATIC / "js" / "site.js"])
+    version = file_hash(css_files + sorted((STATIC / "js").glob("*.js")))
 
     site_url = s["site_url"].rstrip("/") + "/"
 

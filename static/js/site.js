@@ -2,6 +2,7 @@
 (function () {
   "use strict";
   window.SITE_READY = true;
+  window.SiteFX = window.SiteFX || {}; // спільне для site.js і games.js (заповнюється нижче)
 
   var root = document.documentElement;
   var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -583,11 +584,36 @@
   })();
 
   /* ---------------------------------------------------------------- сезонні частинки й шкільні смайлики в банері */
+  /* Сезон за датою (з урахуванням ?date=…), ?season=winter|spring|summer|autumn — для перевірки.
+     Особливі дні додають свої символи до сезонних. */
+  var Season = (function () {
+    var d = Cal.today.date, m = d.getMonth(), day = d.getDate();
+    var SEASONS = {
+      winter: { name: "зима", fall: ["❄️", "❄️", "✨"], catchWord: "сніжинку", caught: "сніжинок" },
+      spring: { name: "весна", fall: ["🌸", "🌷", "🌼"], catchWord: "пелюстку", caught: "пелюсток" },
+      summer: { name: "літо", fall: ["🌻", "🦋", "☀️"], catchWord: "метелика", caught: "метеликів" },
+      autumn: { name: "осінь", fall: ["🍂", "🍁", "🍃"], catchWord: "листочок", caught: "листочків" }
+    };
+    var forced = /[?&]season=(winter|spring|summer|autumn)/.exec(location.search);
+    var key = forced ? forced[1] : m === 11 || m <= 1 ? "winter" : m <= 4 ? "spring" : m <= 7 ? "summer" : "autumn";
+    var s = Object.assign({ key: key }, SEASONS[key]);
+    s.fall = s.fall.slice();
+    if (!forced) {
+      var md = (m + 1) * 100 + day; // 1219 = 19 грудня
+      if (md >= 1219 || md <= 107) { s.fall = s.fall.concat(["🎄", "🎁", "⭐"]); s.special = "newyear"; }
+      else if (md >= 901 && md <= 907) { s.fall = ["🔔", "📚", "🍂", "✏️"]; s.special = "firstbell"; }
+      else if (md === 1001 || md === 824) { s.fall = ["💙", "💛", "🇺🇦", s.fall[0]]; s.special = "ukraine"; }
+    }
+    root.dataset.season = key;
+    return s;
+  })();
+  window.SiteFX.season = Season;
+
   (function () {
     var fx = $("[data-hero-fx]");
     if (!fx || reduce) return;
-    var m = new Date().getMonth();
-    var season = m === 11 || m <= 1 ? ["❄️", "❄️", "✨"] : m <= 4 ? ["🌸", "🌷", "🌼"] : m <= 7 ? ["☀️", "🌻", "🦋"] : ["🍂", "🍁", "🍃"];
+    var m = Cal.today.date.getMonth();
+    var season = Season.fall;
     var school = ["📚", "✏️", "🎨", "🔬", "⚽", "🎵", "🧮", "🌍", "📐", "💡"];
     var small = innerWidth < 760;
     var frag = document.createDocumentFragment();
@@ -613,6 +639,27 @@
     fx.appendChild(frag);
   })();
 
+  /* ---------------------------------------------------------------- конфеті (пасхалка, ігри) */
+  function confetti(x, y, count, bits) {
+    if (reduce || !document.body.animate) return;
+    bits = bits || ["🎉", "✨", "💛", "💙", "⭐", "🎈"];
+    for (var i = 0; i < (count || 30); i++) {
+      var b = document.createElement("span");
+      b.className = "confetti";
+      b.textContent = bits[i % bits.length];
+      b.style.left = x + "px"; b.style.top = y + "px";
+      document.body.appendChild(b);
+      var ang = Math.random() * Math.PI * 2, dist = 100 + Math.random() * 240;
+      var dx = Math.cos(ang) * dist, dy = Math.sin(ang) * dist * 0.7 - 80;
+      b.animate([
+        { transform: "translate(-50%,-50%) scale(.4)", opacity: 1 },
+        { transform: "translate(calc(-50% + " + dx + "px), calc(-50% + " + dy + "px)) rotate(" + (Math.random() * 540 - 270) + "deg) scale(1)", opacity: 1, offset: .7 },
+        { transform: "translate(calc(-50% + " + dx * 1.1 + "px), calc(-50% + " + (dy + 220) + "px)) rotate(" + (Math.random() * 720) + "deg) scale(.8)", opacity: 0 }
+      ], { duration: 1400 + Math.random() * 600, easing: "cubic-bezier(.16,1,.3,1)" }).onfinish = (function (el) { return function () { el.remove(); }; })(b);
+    }
+  }
+  window.SiteFX.confetti = confetti; window.SiteFX.reduce = reduce; window.SiteFX.store = store;
+
   /* ---------------------------------------------------------------- пасхалка: 5 кліків по «7» на головній — конфеті */
   (function () {
     var mark = $(".header .brand__mark");
@@ -626,23 +673,8 @@
       mark.animate([{ transform: "scale(1)" }, { transform: "scale(1.25) rotate(-12deg)" }, { transform: "scale(1)" }], { duration: 260 });
       if (clicks < 5) return;
       clicks = 0;
-      if (reduce) return;
-      var r = mark.getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + r.height / 2;
-      var bits = ["🎉", "✨", "💛", "💙", "⭐", "🎈", "📚", "7"];
-      for (var i = 0; i < 46; i++) {
-        var b = document.createElement("span");
-        b.className = "confetti";
-        b.textContent = bits[i % bits.length];
-        b.style.left = x + "px"; b.style.top = y + "px";
-        document.body.appendChild(b);
-        var ang = Math.random() * Math.PI * 2, dist = 120 + Math.random() * 260;
-        var dx = Math.cos(ang) * dist, dy = Math.sin(ang) * dist * 0.7 - 80;
-        b.animate([
-          { transform: "translate(-50%,-50%) scale(.4)", opacity: 1 },
-          { transform: "translate(calc(-50% + " + dx + "px), calc(-50% + " + dy + "px)) rotate(" + (Math.random() * 540 - 270) + "deg) scale(1)", opacity: 1, offset: .7 },
-          { transform: "translate(calc(-50% + " + dx * 1.1 + "px), calc(-50% + " + (dy + 220) + "px)) rotate(" + (Math.random() * 720) + "deg) scale(.8)", opacity: 0 }
-        ], { duration: 1400 + Math.random() * 600, easing: "cubic-bezier(.16,1,.3,1)" }).onfinish = (function (el) { return function () { el.remove(); }; })(b);
-      }
+      var r = mark.getBoundingClientRect();
+      confetti(r.left + r.width / 2, r.top + r.height / 2, 46, ["🎉", "✨", "💛", "💙", "⭐", "🎈", "📚", "7"]);
     });
   })();
 

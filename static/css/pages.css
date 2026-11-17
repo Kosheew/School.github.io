@@ -225,3 +225,14 @@
 
 /* конфеті з пасхалки */
 .confetti { position: fixed; z-index: 500; pointer-events: none; font-size: 1.4rem; }
+
+/* ---------- Сезонне сяйво в банері (html[data-season] ставить site.js) ---------- */
+[data-season="winter"] .hero__aurora i:nth-child(1) { background: #8fd3ff; }
+[data-season="winter"] .hero__aurora i:nth-child(2) { background: #4a6fa5; }
+[data-season="spring"] .hero__aurora i:nth-child(1) { background: #ff9ec7; }
+[data-season="spring"] .hero__aurora i:nth-child(2) { background: #8bc34a; }
+[data-season="summer"] .hero__aurora i:nth-child(1) { background: #ffd23f; }
+[data-season="summer"] .hero__aurora i:nth-child(2) { background: #2fa36b; }
+[data-season="autumn"] .hero__aurora i:nth-child(1) { background: #ff8c32; }
+[data-season="autumn"] .hero__aurora i:nth-child(2) { background: #a0522d; }
+.hero__aurora i { transition: background 1.2s ease; }

@@ -140,8 +140,27 @@
         «гр. 1 / гр. 2» — заняття в підгрупах{% if ns.has_weeks %}; «тиждень A / B» — урок чергується через тиждень{% endif %}.
         <a href="{{ s.schedule_url }}" target="_blank" rel="noopener">Джерело: rozklad.org <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
       </p>
+
+      <section class="memory" data-memory data-reveal aria-labelledby="memory-title">
+        <div class="memory__head">
+          <div>
+            <h2 class="memory__title" id="memory-title">🎮 Гра на перерву: знайди пару</h2>
+            <p class="memory__stats"><span>Ходи: <b data-mem-moves>0</b></span><span>Час: <b data-mem-time>0:00</b></span><span>Рекорд: <b data-mem-best>—</b></span></p>
+          </div>
+          <button class="btn btn--soft btn--sm" type="button" data-mem-restart><i class="fa-solid fa-rotate"></i> Ще раз</button>
+        </div>
+        <div class="memory__board">
+          <div class="memory__grid" data-mem-grid></div>
+          <div class="memory__win" data-mem-win hidden>
+            <p data-mem-win-text></p>
+            <button class="btn btn--accent" type="button" data-mem-restart>Зіграти ще 🎲</button>
+          </div>
+        </div>
+      </section>
     </div>
     {% endif %}
   </div>
 </section>
 {% endblock %}
+
+{% block scripts %}<script src="{{ asset('static/js/games.js') }}" defer></script>{% endblock %}

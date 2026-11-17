@@ -1,0 +1,98 @@
+/* Міні-ігри: «Розминка дня», «Впіймай листочок», «Знайди пару» */
+
+/* ---------- 🧠 Розминка дня ---------- */
+.section--quiz { padding-top: 0; }
+.quiz {
+  position: relative; overflow: hidden; max-width: 860px; margin-inline: auto;
+  padding: clamp(20px, 4vw, 34px); border-radius: var(--radius-lg);
+  background:
+    radial-gradient(420px circle at 100% 0%, color-mix(in oklab, #8a5cf6 18%, transparent), transparent 60%),
+    radial-gradient(420px circle at 0% 100%, color-mix(in oklab, var(--c-accent) 20%, transparent), transparent 60%),
+    var(--c-surface);
+  border: 1px solid var(--c-line); box-shadow: var(--shadow-2);
+}
+.quiz.is-flip { animation: quiz-flip .5s var(--ease-out); }
+@keyframes quiz-flip { from { opacity: 0; transform: perspective(900px) rotateX(-12deg) translateY(10px); } }
+.quiz__head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 14px; }
+.quiz__badge { padding: 6px 12px; border-radius: 999px; background: var(--c-ink); color: var(--c-bg); font-weight: 800; font-size: .82rem; }
+.quiz__topic { padding: 6px 12px; border-radius: 999px; background: var(--c-bg-2); font-weight: 700; font-size: .82rem; color: var(--c-muted); }
+.quiz__streak { margin-left: auto; padding: 6px 12px; border-radius: 999px; background: color-mix(in oklab, #ff7a1a 16%, var(--c-surface)); color: #c2410c; font-weight: 800; font-size: .85rem; }
+.quiz__streak.is-up { animation: pop .5s var(--ease-spring); }
+.quiz__q { font: 700 clamp(1.15rem, 1rem + .8vw, 1.5rem)/1.3 var(--font-head); margin: 0 0 18px; }
+.quiz__options { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 10px; }
+.quiz__opt {
+  display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 16px; text-align: left;
+  border: 2px solid var(--c-line); background: var(--c-surface-2); font-weight: 700; font-size: 1rem;
+  animation: rise .4s var(--ease-out) both; animation-delay: calc(var(--i) * 60ms);
+  transition: transform var(--dur-2) var(--ease-spring), border-color var(--dur-1), background var(--dur-1);
+}
+.quiz__opt:not(:disabled):hover { transform: translateY(-3px); border-color: var(--c-brand); }
+.quiz__opt:not(:disabled):active { transform: scale(.97); }
+.quiz__opt:disabled { cursor: default; }
+.quiz__letter { flex: none; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 10px; background: var(--c-surface); font: 700 .85rem/1 var(--font-head); color: var(--c-muted); }
+.quiz__opt.is-right { border-color: #2f8f83; background: color-mix(in oklab, #2f8f83 14%, var(--c-surface)); }
+.quiz__opt.is-right .quiz__letter { background: #2f8f83; color: #fff; }
+.quiz__opt.is-wrong { border-color: var(--c-danger); background: var(--c-danger-soft); animation: shake .45s ease; }
+.quiz__opt.is-wrong .quiz__letter { background: var(--c-danger); color: #fff; }
+.quiz__opt:disabled:not(.is-right):not(.is-wrong) { opacity: .55; }
+.quiz__result { min-height: 1.4em; margin: 16px 0 0; font-weight: 800; }
+.quiz__result.is-right { color: #2f8f83; animation: pop .45s var(--ease-spring); }
+.quiz__result.is-wrong { color: var(--c-danger); }
+.quiz__more { margin-top: 12px; }
+@keyframes shake { 20%, 60% { translate: -6px 0; } 40%, 80% { translate: 6px 0; } }
+@keyframes pop { 0% { scale: .7; } 60% { scale: 1.12; } 100% { scale: 1; } }
+
+/* ---------- 🍂 Впіймай листочок ---------- */
+.hero__fx--catch { pointer-events: none; }
+.hero__fx--catch .fx-fall { pointer-events: auto; cursor: pointer; padding: 10px; margin: -10px; touch-action: manipulation; transition: scale .15s; }
+.hero__fx--catch .fx-fall:hover { scale: 1.3; }
+.fx-fall.is-caught { animation-play-state: paused !important; scale: 1.9; opacity: 0; transition: scale .3s var(--ease-out), opacity .3s; }
+.catch__plus { position: absolute; z-index: 2; translate: -50% 0; font: 800 1.1rem/1 var(--font-head); color: var(--c-accent); text-shadow: 0 2px 6px rgb(0 0 0 / .4); pointer-events: none; animation: plus-up .8s var(--ease-out) forwards; }
+@keyframes plus-up { to { translate: -50% -40px; opacity: 0; } }
+.catch {
+  position: absolute; right: 18px; bottom: 18px; z-index: 2; display: inline-flex; align-items: center; gap: 10px;
+  padding: 8px 14px; border-radius: 999px; background: rgb(255 255 255 / .16); color: #fff;
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: inset 0 0 0 1px rgb(255 255 255 / .3);
+  font-weight: 800; font-size: .9rem; animation: rise .5s var(--ease-out) both;
+}
+.catch.is-pop { animation: pop .35s var(--ease-spring); }
+.catch__best { font-weight: 600; opacity: .8; font-size: .8rem; }
+.catch__wow { position: absolute; right: 0; bottom: calc(100% + 8px); white-space: nowrap; padding: 6px 12px; border-radius: 999px; background: var(--c-accent); color: var(--c-accent-ink); animation: pop .45s var(--ease-spring); }
+@media (max-width: 700px) { .catch { right: 12px; bottom: 12px; font-size: .8rem; } }
+
+/* ---------- 🎮 Знайди пару ---------- */
+.memory { padding: clamp(18px, 3vw, 26px); border-radius: var(--radius-lg); background: var(--c-surface); border: 1px solid var(--c-line); }
+.memory__head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+.memory__title { font-size: 1.1rem; margin: 0 0 6px; }
+.memory__stats { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 0; color: var(--c-muted); font-size: .88rem; }
+.memory__stats b { color: var(--c-ink); font-variant-numeric: tabular-nums; }
+.memory__board { position: relative; max-width: 520px; margin-inline: auto; }
+.memory__grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.mcard { aspect-ratio: 1; padding: 0; border: 0; background: none; perspective: 700px; }
+.mcard__inner { position: relative; display: block; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform .45s var(--ease-out); }
+.mcard.is-open .mcard__inner, .mcard.is-matched .mcard__inner { transform: rotateY(180deg); }
+.mcard__back, .mcard__front { position: absolute; inset: 0; display: grid; place-items: center; border-radius: 16px; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.mcard__back {
+  font: 700 clamp(1.2rem, 4vw, 1.8rem)/1 var(--font-head); color: var(--c-accent-ink);
+  background: linear-gradient(135deg, #ffd85c, var(--c-accent) 55%, #e2a90f); box-shadow: var(--shadow-1);
+  transition: transform var(--dur-2) var(--ease-spring);
+}
+.mcard:hover .mcard__back { transform: scale(1.04) rotate(-2deg); }
+.mcard__front { transform: rotateY(180deg); background: var(--c-surface-2); border: 2px solid var(--c-line); font-size: clamp(1.6rem, 6vw, 2.4rem); }
+.mcard.is-matched .mcard__front { border-color: #2f8f83; background: color-mix(in oklab, #2f8f83 12%, var(--c-surface)); animation: match .5s var(--ease-spring); }
+.mcard.is-miss .mcard__front { border-color: var(--c-danger); animation: shake .4s ease; }
+.memory.is-dealing .mcard { animation: deal .45s var(--ease-out) both; animation-delay: calc(var(--i) * 25ms); }
+@keyframes deal { from { opacity: 0; transform: translateY(-14px) rotate(-8deg) scale(.8); } }
+@keyframes match { 50% { transform: rotateY(180deg) scale(1.12); } }
+.memory__win {
+  position: absolute; inset: -6px; z-index: 2; display: grid; place-content: center; justify-items: center; gap: 14px; text-align: center;
+  border-radius: 20px; background: color-mix(in oklab, var(--c-surface) 82%, transparent); backdrop-filter: blur(6px);
+  animation: rise .4s var(--ease-out);
+}
+.memory__win p { margin: 0; font: 700 1.2rem/1.3 var(--font-head); }
+@media (max-width: 600px) { .memory__grid { gap: 7px; } .mcard__back, .mcard__front { border-radius: 12px; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .mcard__inner { transition: none; }
+}
+@media print { .memory { display: none !important; } }
