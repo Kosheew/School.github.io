@@ -1,7 +1,7 @@
 /* Сторінка «Розклад уроків»: вибір класу, тижнева сітка (десктоп), день-за-днем (телефон), друк. */
 
 .section--schedule { padding-top: var(--space-6); }
-.schedule { display: grid; gap: var(--space-5); }
+.schedule { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-5); }
 
 /* ---------- Вибір класу ---------- */
 .schedule__picker { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: var(--space-4); }
@@ -37,7 +37,7 @@
 .day-tab[aria-selected="true"] { background: var(--c-ink); color: var(--c-bg); }
 .day-tab.is-today::after { content: ""; position: absolute; left: 50%; bottom: 4px; width: 5px; height: 5px; margin-left: -2.5px; border-radius: 50%; background: var(--c-accent); }
 .day-tab__long { display: none; }
-.schedule__tools { display: flex; align-items: center; gap: 8px; }
+.schedule__tools { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; min-width: 0; }
 .seg { display: inline-flex; padding: 3px; border-radius: 12px; background: var(--c-bg-2); }
 .seg__btn { padding: 8px 12px; border: 0; border-radius: 9px; background: none; font-weight: 800; font-size: .82rem; color: var(--c-muted); white-space: nowrap; transition: background var(--dur-1), color var(--dur-1); }
 .seg__btn.is-active { background: var(--c-surface); color: var(--c-ink); box-shadow: var(--shadow-1); }
@@ -122,4 +122,11 @@
   .tt-cell { display: grid !important; }
   .tt-cell { grid-column: var(--col) !important; }
   .lesson { break-inside: avoid; }
+}
+
+/* вузькі телефони: друк — лише іконкою, щоб панель не розпирала сторінку */
+@media (max-width: 420px) {
+  .schedule__tools [data-print] { padding-inline: 12px; font-size: 0; gap: 0; }
+  .schedule__tools [data-print] i { font-size: .95rem; }
+  .seg__btn { padding: 8px 4px; font-size: .74rem; }
 }

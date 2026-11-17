@@ -14,10 +14,19 @@
         {% if c.phone %}<a class="contact" href="tel:{{ c.phone | replace(' ', '') }}" data-reveal data-spotlight style="--i: 1"><span class="contact__icon"><i class="fa-solid fa-phone"></i></span><p class="contact__label">Телефон</p><p class="contact__value">{{ c.phone }}</p></a>{% endif %}
         {% if c.email %}<a class="contact" href="mailto:{{ c.email }}" data-reveal data-spotlight style="--i: 2"><span class="contact__icon"><i class="fa-solid fa-envelope"></i></span><p class="contact__label">E-mail</p><p class="contact__value">{{ c.email }}</p></a>{% endif %}
       </div>
+      {% if c.address %}
+      <div class="map" data-reveal>
+        <iframe title="Карта: {{ c.address }}" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+          src="https://maps.google.com/maps?q={{ (s.short_name ~ ', ' ~ c.address) | urlencode }}&z=16&output=embed"></iframe>
+        <a class="btn btn--soft btn--sm map__open" href="https://www.google.com/maps/search/?api=1&query={{ c.address | urlencode }}" target="_blank" rel="noopener"><i class="fa-solid fa-route"></i> Прокласти маршрут</a>
+      </div>
+      {% endif %}
       {% endif %}
     {% endif %}
 
-    {% if info.is_empty %}
+    {% set c = s.contacts %}
+    {% set has_contacts = info.slug == "contacts" and (c.address or c.phone or c.email) %}
+    {% if info.is_empty and not has_contacts %}
     <div class="empty-state" data-reveal>
       <div class="empty-state__art" aria-hidden="true">
         <span class="empty-state__ring"></span><span class="empty-state__ring"></span>
@@ -34,7 +43,7 @@
       </div>
       {% endif %}
     </div>
-    {% else %}
+    {% elif not info.is_empty %}
     <article class="card" data-reveal>
       <div class="prose">{{ info.body | fix_links | safe }}</div>
     </article>

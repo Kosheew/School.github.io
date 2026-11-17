@@ -21,6 +21,7 @@ import argparse
 import hashlib
 import html
 import json
+import os
 import re
 import shutil
 import sys
@@ -50,6 +51,7 @@ SECTIONS = {
     "grades-5-9": "5–9 класи",
     "bullying": "Протидія булінгу",
     "useful": "Корисне",
+    "integrity": "Академічна доброчесність",
 }
 
 # Кожен "page" має існувати (в PAGES або content/pages/), інакше збірка зупиниться —
@@ -68,6 +70,7 @@ NAV = [
         {"label": "Розклад уроків", "page": "schedule", "icon": "fa-calendar-days"},
         {"label": "1–4 класи", "page": "grades-1-4", "icon": "fa-shapes"},
         {"label": "5–9 класи", "page": "grades-5-9", "icon": "fa-book-open"},
+        {"label": "Академічна доброчесність", "page": "integrity", "icon": "fa-award"},
         {"label": "Корисна інформація", "page": "useful", "icon": "fa-lightbulb"},
     ]},
     {"label": "Виховання", "children": [
@@ -87,7 +90,7 @@ NAV = [
 # key -> (шаблон, шлях у dist, заголовок, опис)
 PAGES = {
     "home": ("pages/home.html", "", None, None),
-    "news": ("pages/news.html", "news/", "Новини", "Усі новини та події Фастівської гімназії №7."),
+    "news": ("pages/news.html", "news/", "Новини", "Усі новини та події Фастівської гімназії № 7."),
     "documents": ("pages/documents.html", "documents/", "Документи", "Усі офіційні документи гімназії з пошуком і фільтрами."),
     "transparency": ("pages/transparency.html", "transparency/", "Прозорість та інформаційна відкритість",
                      "Структура навчального року, приймальні дні, вакансії та офіційні документи."),
@@ -98,6 +101,8 @@ PAGES = {
     "useful": ("pages/useful-info.html", "useful-info/", "Корисна інформація", "Критерії оцінювання та матеріали для учнів і батьків."),
     "inclusion": ("pages/inclusion.html", "inclusion/", "Інклюзивна освіта", "Доступність закладу та супровід дітей з ООП."),
     "psychologist": ("pages/psychologist.html", "psychologist/", "Сторінка психолога", "Поради батькам і підтримка дітей."),
+    "integrity": ("pages/integrity.html", "academic-integrity/", "Академічна доброчесність",
+                  "Положення, накази, склад комісії та правила академічної доброчесності в гімназії."),
     "schedule": ("pages/schedule.html", "schedule/", "Розклад уроків", "Актуальний розклад уроків для всіх класів: на тиждень і на сьогодні."),
 }
 
@@ -418,8 +423,14 @@ def watch_and_rebuild(base: str) -> None:
     def snapshot():
         return {p: p.stat().st_mtime for d in (CONTENT, TEMPLATES, STATIC) for p in d.rglob("*") if p.is_file()}
     last = snapshot()
+    me = Path(__file__).resolve()
+    my_mtime = me.stat().st_mtime
     while True:
         time.sleep(0.7)
+        if me.stat().st_mtime != my_mtime:
+            # змінився сам збирач — перезапускаємо процес, щоб підхопити новий код
+            print("↻ build.py змінено — перезапуск сервера…", flush=True)
+            os.execv(sys.executable, [sys.executable, *sys.argv])
         now = snapshot()
         if now != last:
             last = now

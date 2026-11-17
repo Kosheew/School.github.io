@@ -1,0 +1,123 @@
+{% extends "layouts/base.html" %}
+{% import "partials/macros.html" as m %}
+{% block main %}
+{% set docs = site.docs("integrity") %}
+{% set main_doc = docs[0] if docs else None %}
+{{ m.hero("Академічна доброчесність", "Чесно навчатися, чесно оцінювати, поважати чужу працю. Як це працює в гімназії: цінності, правила, види порушень і що робити, якщо ви їх помітили.", "static/media/img/news-safety-officer.jpg", [("Освітній процес", None), ("Академічна доброчесність", None)]) }}
+
+<section class="section">
+  <div class="container stack">
+
+    {% if main_doc %}
+    <div class="callout" data-reveal data-spotlight>
+      <span class="callout__icon"><i class="fa-solid fa-award"></i></span>
+      <div>
+        <span class="badge badge--pulse"><i class="fa-solid fa-star"></i> Діє з 01.09.2026</span>
+        <h2 class="h3">{{ main_doc.title }}</h2>
+        <p>Затверджене педагогічною радою (протокол від 31.08.2026 № 13) і введене в дію наказом директора від 01.09.2026 № 203-од. Розроблене на основі Закону України «Про академічну доброчесність» від 18.12.2025 № 4742-IX.</p>
+        <div class="row">
+          <a class="btn" href="{{ url(main_doc.file) }}" data-pdf data-pdf-title="{{ main_doc.title }}" data-magnetic><i class="fa-regular fa-eye"></i> Читати Положення</a>
+          <a class="btn btn--soft" href="{{ url(main_doc.file) }}" download><i class="fa-solid fa-download"></i> Завантажити PDF</a>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="grid-2">
+      <article class="card" data-reveal>
+        <h2 class="card__h"><i class="fa-solid fa-heart"></i> Наші цінності</h2>
+        <ul class="values">
+          {% for icon, t, d in [
+            ("fa-hand-holding-heart", "Чесність", "перед собою та іншими"),
+            ("fa-handshake", "Довіра", "до того, що результати здобуті чесно й самостійно"),
+            ("fa-user-shield", "Повага", "до честі, гідності та інтелектуальної власності"),
+            ("fa-scale-balanced", "Справедливість", "неупереджене реагування й доброчесне оцінювання"),
+            ("fa-person-circle-check", "Відповідальність", "кожного за власну навчальну чи педагогічну роботу"),
+            ("fa-mountain", "Стійкість", "доброчесна поведінка навіть без зовнішнього контролю"),
+          ] %}
+          <li class="value" data-reveal style="--i: {{ loop.index0 }}"><span class="value__icon"><i class="fa-solid {{ icon }}"></i></span><span><strong>{{ t }}</strong> — {{ d }}</span></li>
+          {% endfor %}
+        </ul>
+      </article>
+      <article class="card" data-reveal style="--i: 1">
+        <h2 class="card__h"><i class="fa-solid fa-compass"></i> Принципи</h2>
+        <ul class="checklist">
+          <li><span><strong>Виховання понад покарання</strong> — навчити дотримуватися доброчесності важливіше за санкції.</span></li>
+          <li><span><strong>Відкритість</strong> — правила, види порушень і відповідальність відомі всім.</span></li>
+          <li><span><strong>Нульова толерантність</strong> до будь-яких порушень.</span></li>
+          <li><span><strong>Повага</strong> до результатів праці інших.</span></li>
+          <li><span><strong>Презумпція доброчесності</strong> — людина не порушник, доки це не встановлено за процедурою.</span></li>
+          <li><span><strong>Без конфлікту інтересів</strong> під час розгляду.</span></li>
+        </ul>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="section section--tint">
+  <div class="container">
+    {{ m.section_head("Важливо знати", "Що вважається порушенням", "Натисніть на картку, щоб прочитати визначення з Положення.") }}
+    <div class="violations">
+      {% for icon, t, d in [
+        ("fa-copy", "Академічний плагіат", "Оприлюднення (частково або повністю) результату навчальної роботи іншої особи як власного та/або відтворення в роботі чужого твору без посилання на джерело чи автора."),
+        ("fa-clone", "Самоплагіат", "Подання власної раніше поданої (оціненої) роботи як нової без зазначення цього факту, якщо це не дозволено умовами завдання."),
+        ("fa-wand-magic-sparkles", "Фабрикація", "Вигадування даних або фактів, використаних у навчальній роботі, дослідженні, звіті."),
+        ("fa-pen-ruler", "Фальсифікація", "Свідома зміна чи спотворення наявних даних, що створює завідомо неправдиву інформацію в навчальній роботі."),
+        ("fa-robot", "Недоброчесне використання ШІ", "Видавання текстів, зображень, розрахунків, згенерованих штучним інтелектом, за результат власної роботи, якщо це не зазначено в роботі."),
+        ("fa-eye-slash", "Несамостійне виконання", "Виконання завдання, зокрема під час оцінювання, з недозволеними джерелами, технічними засобами чи допомогою (списування)."),
+        ("fa-hands-helping", "Недозволена допомога", "Допомога під час виконання завдання, не передбачена його умовами, яка викривлює або могла викривити оцінку."),
+        ("fa-marker", "Недоброчесне оцінювання", "Свідоме порушення вчителем вимог оцінювання, що призвело до завищення або заниження оцінки."),
+        ("fa-ban", "Академічний саботаж", "Дія чи бездіяльність, що перешкоджає іншій людині в її навчальній чи педагогічній діяльності."),
+        ("fa-hand-point-right", "Схиляння до порушення", "Прохання, умовляння, доручення, погроза, тиск чи інше спонукання людини порушити академічну доброчесність."),
+      ] %}
+      <details class="violation" data-reveal style="--i: {{ loop.index0 % 5 }}">
+        <summary><span class="violation__icon"><i class="fa-solid {{ icon }}"></i></span><span class="violation__title">{{ t }}</span><i class="fa-solid fa-plus violation__toggle" aria-hidden="true"></i></summary>
+        <div class="violation__body"><p>{{ d }}</p></div>
+      </details>
+      {% endfor %}
+    </div>
+    <p class="muted integrity-note" data-reveal><i class="fa-solid fa-circle-info"></i> Несамостійно виконане завдання вважається невиконаним і не оцінюється. До академічної відповідальності притягують з 14 років; до молодших учнів застосовують лише виховні заходи.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container stack">
+    <div>
+      {{ m.section_head("Якщо ви помітили порушення", "Як повідомити і що буде далі") }}
+      <ol class="steps">
+        {% for icon, t, d in [
+          ("fa-file-pen", "Повідомлення", "Будь-хто з учасників освітнього процесу, хто має докази, може подати письмове повідомлення (на папері чи електронне) директору або до комісії. Форма повідомлення є в Положенні."),
+          ("fa-folder-open", "Реєстрація", "Повідомлення реєструють у журналі. Його розглядають, якщо в ньому є факти, які можна перевірити."),
+          ("fa-people-group", "Розгляд", "Комісія вивчає докази, вислуховує пояснення людини і ухвалює обґрунтоване рішення — не пізніше ніж за 30 календарних днів. Учні 14–18 років — за участі батьків."),
+          ("fa-gavel", "Оскарження", "І той, щодо кого ухвалено рішення, і той, хто подав повідомлення, мають право його оскаржити."),
+        ] %}
+        <li class="step" data-reveal data-spotlight style="--i: {{ loop.index0 }}">
+          <span class="step__icon"><i class="fa-solid {{ icon }}"></i></span>
+          <h3 class="step__title">{{ t }}</h3>
+          <p>{{ d }}</p>
+        </li>
+        {% endfor %}
+      </ol>
+    </div>
+
+    <article class="card commission" data-reveal>
+      <div>
+        <h2 class="card__h"><i class="fa-solid fa-users-viewfinder"></i> Комісія з питань академічної доброчесності</h2>
+        <p>Розглядає повідомлення, досліджує докази, забезпечує право людини на пояснення та ухвалює мотивоване рішення. До складу входять 11 осіб: голова, заступник голови, секретар і 8 членів — представники адміністрації, педагогів, практичний психолог, бібліотекар, а також учнів і батьків.</p>
+      </div>
+      {% set sklad = [] %}
+      {% for d in docs %}{% if "sklad-komisii" in d.file %}{% set _ = sklad.append(d) %}{% endif %}{% endfor %}
+      {% if sklad %}
+      <a class="btn btn--soft" href="{{ url(sklad[0].file) }}" data-pdf data-pdf-title="{{ sklad[0].title }}"><i class="fa-solid fa-list-ul"></i> Персональний склад</a>
+      {% endif %}
+    </article>
+  </div>
+</section>
+
+<section class="section section--tint">
+  <div class="container">
+    {{ m.section_head("Документи", "Накази та положення") }}
+    {{ m.doc_list(docs) }}
+  </div>
+</section>
+{% endblock %}

@@ -92,6 +92,7 @@ content:
             - { value: grades-5-9, label: 5–9 класи }
             - { value: bullying, label: Протидія булінгу }
             - { value: useful, label: Корисна інформація }
+            - { value: integrity, label: Академічна доброчесність }
       - name: file
         label: PDF-файл
         type: file

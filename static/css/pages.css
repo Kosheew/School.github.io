@@ -131,3 +131,43 @@
   .principle { padding: 16px; }
   .principle p { font-size: .84rem; }
 }
+
+/* ---------- Академічна доброчесність ---------- */
+.values { list-style: none; display: grid; gap: 10px; }
+.value { display: flex; align-items: flex-start; gap: 12px; }
+.value__icon { flex: none; width: 36px; height: 36px; display: grid; place-items: center; border-radius: 11px; background: var(--c-brand-soft); color: var(--c-brand); }
+.value strong { color: var(--c-ink); }
+.value span:last-child { color: var(--c-muted); padding-top: 6px; }
+
+.violations { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 12px; align-items: start; }
+.violation { border-radius: var(--radius); border: 1px solid var(--c-line); background: var(--c-surface); overflow: hidden; transition: box-shadow var(--dur-2), border-color var(--dur-2); }
+.violation[open] { border-color: color-mix(in oklab, var(--c-danger) 40%, transparent); box-shadow: var(--shadow-2); }
+.violation summary { display: flex; align-items: center; gap: 12px; padding: 16px 18px; cursor: pointer; list-style: none; font-weight: 800; }
+.violation summary::-webkit-details-marker { display: none; }
+.violation__icon { flex: none; width: 40px; height: 40px; display: grid; place-items: center; border-radius: 12px; background: var(--c-danger-soft); color: var(--c-danger); transition: transform var(--dur-2) var(--ease-spring); }
+.violation:hover .violation__icon { transform: rotate(-8deg) scale(1.08); }
+.violation__title { flex: 1; line-height: 1.3; }
+.violation__toggle { color: var(--c-muted); transition: transform var(--dur-2) var(--ease-out); }
+.violation[open] .violation__toggle { transform: rotate(45deg); color: var(--c-danger); }
+.violation__body { padding: 0 18px 16px 70px; color: var(--c-muted); font-size: .94rem; animation: rise .35s var(--ease-out); }
+.violation__body p { margin: 0; }
+.integrity-note { margin: var(--space-5) 0 0; display: flex; gap: 10px; align-items: flex-start; font-size: .92rem; }
+.integrity-note i { color: var(--c-brand); margin-top: 4px; }
+
+.steps { list-style: none; counter-reset: st; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: var(--space-4); }
+.step { position: relative; overflow: hidden; padding: 22px; border-radius: var(--radius); background: var(--c-surface); border: 1px solid var(--c-line); }
+.step::after { counter-increment: st; content: counter(st); position: absolute; right: 16px; top: 6px; font: 700 3rem/1 var(--font-head); color: color-mix(in oklab, var(--c-brand) 14%, transparent); }
+.step__icon { width: 46px; height: 46px; display: grid; place-items: center; border-radius: 14px; margin-bottom: 12px; background: var(--c-brand); color: var(--c-brand-ink); font-size: 1.1rem; }
+.step__title { font-size: 1.05rem; margin-bottom: 6px; }
+.step p { margin: 0; color: var(--c-muted); font-size: .92rem; }
+.commission { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-4); }
+.commission > div { flex: 1 1 420px; }
+.commission p { margin: 0; color: var(--c-muted); }
+@media (max-width: 760px) { .violation__body { padding-left: 18px; } .commission .btn { width: 100%; } }
+
+/* ---------- Контакти: карта ---------- */
+.map { position: relative; border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--c-line); box-shadow: var(--shadow-1); }
+.map iframe { display: block; width: 100%; height: clamp(260px, 42vw, 420px); border: 0; }
+.map__open { position: absolute; right: 14px; bottom: 14px; box-shadow: var(--shadow-2); }
+.hero--404 .empty-state__art { margin-bottom: var(--space-5); }
+.hero--404 .hero__title { max-width: 20ch; }

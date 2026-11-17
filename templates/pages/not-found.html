@@ -1,14 +1,17 @@
 {% extends "layouts/base.html" %}
 {% block main %}
+{# GitHub Pages віддає цю сторінку для будь-якої адреси, якої немає на сайті #}
 <section class="hero hero--404">
   <div class="hero__aurora" aria-hidden="true"><i></i><i></i><i></i></div>
   <div class="container hero__inner hero__inner--center">
-    <p class="big-404" aria-hidden="true">4<span>0</span>4</p>
-    <h1 class="hero__title">Сторінку не знайдено</h1>
-    <p class="hero__lead">Можливо, її перенесли під час оновлення сайту. Спробуйте почати з головної або документів.</p>
+    <div class="empty-state__art" aria-hidden="true"><span class="empty-state__ring"></span><span class="empty-state__ring"></span><i class="fa-solid fa-person-digging"></i></div>
+    <h1 class="hero__title">Інформацію ще не додано</h1>
+    <p class="hero__lead">Цей розділ ще наповнюється або сторінку перенесли під час оновлення сайту. Ось де можна знайти потрібне:</p>
     <div class="hero__actions hero__actions--center">
-      <a class="btn btn--accent btn--lg" href="{{ page_url('home') }}">На головну</a>
-      <a class="btn btn--glass btn--lg" href="{{ page_url('documents') }}">Документи</a>
+      <a class="btn btn--accent btn--lg" href="{{ page_url('home') }}"><i class="fa-solid fa-house"></i> На головну</a>
+      <a class="btn btn--glass btn--lg" href="{{ page_url('schedule') }}"><i class="fa-solid fa-calendar-days"></i> Розклад</a>
+      <a class="btn btn--glass btn--lg" href="{{ page_url('news') }}"><i class="fa-solid fa-newspaper"></i> Новини</a>
+      <a class="btn btn--glass btn--lg" href="{{ page_url('documents') }}"><i class="fa-solid fa-folder-open"></i> Документи</a>
     </div>
   </div>
 </section>
