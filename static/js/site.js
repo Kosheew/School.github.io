@@ -402,6 +402,130 @@
     });
   });
 
+  /* ---------------------------------------------------------------- календар: тиждень A/B і канікули
+     Дані — з content/school-year.json (вбудовані в сторінку як #school-calendar).
+     Тиждень, у якому всі робочі дні (Пн–Пт) припадають на канікули, у чергуванні не рахується. */
+  var Cal = (function () {
+    var raw = $("#school-calendar");
+    var cal = { holidays: [], ab: null };
+    try { if (raw) cal = JSON.parse(raw.textContent) || cal; } catch (e) {}
+    var MONTHS = ["січня", "лютого", "березня", "квітня", "травня", "червня", "липня", "серпня", "вересня", "жовтня", "листопада", "грудня"];
+    var WD = ["неділя", "понеділок", "вівторок", "середа", "четвер", "пʼятниця", "субота"];
+
+    function parse(s) { var p = String(s).split("-"); return new Date(+p[0], +p[1] - 1, +p[2]); }
+    function day0(d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+    function add(d, n) { var x = new Date(d.getTime()); x.setDate(x.getDate() + n); return x; }
+    function monday(d) { var x = day0(d); return add(x, -((x.getDay() + 6) % 7)); }
+    function fmt(d) { return d.getDate() + " " + MONTHS[d.getMonth()]; }
+    // поза навчальним роком (після кінця травня / до 1 вересня) — літні канікули
+    var SUMMER = { title: "Літні канікули", emoji: "☀️" };
+    function holidayOn(d) {
+      d = day0(d);
+      if (cal.yearEnd && d > parse(cal.yearEnd)) return SUMMER;
+      if (cal.yearStart && d < parse(cal.yearStart)) return SUMMER;
+      for (var i = 0; i < cal.holidays.length; i++) {
+        var h = cal.holidays[i];
+        if (d >= parse(h.start) && d <= parse(h.end)) return h;
+      }
+      return null;
+    }
+    function weekIsHoliday(mon) { for (var i = 0; i < 5; i++) if (!holidayOn(add(mon, i))) return false; return true; }
+    function other(w) { return w === "A" ? "B" : "A"; }
+
+    // буква тижня для дати (null — якщо тиждень повністю канікулярний або A/B не налаштовано)
+    function weekOf(d) {
+      if (!cal.ab || !cal.ab.anchor) return null;
+      var mon = monday(d), anchor = parse(cal.ab.anchor), skip = cal.ab.skipHolidayWeeks !== false;
+      if (skip && weekIsHoliday(mon)) return null;
+      var n = 0, cur = anchor, guard = 0;
+      if (mon >= anchor) {
+        while (cur < mon && guard++ < 600) { if (!(skip && weekIsHoliday(cur))) n++; cur = add(cur, 7); }
+      } else {
+        while (cur > mon && guard++ < 600) { cur = add(cur, -7); if (!(skip && weekIsHoliday(cur))) n--; }
+      }
+      return Math.abs(n) % 2 === 0 ? cal.ab.week : other(cal.ab.week);
+    }
+    // найближчий навчальний день, починаючи з d (пропускає вихідні й канікули)
+    function nextSchoolDay(d) {
+      var x = day0(d);
+      for (var i = 0; i < 400; i++, x = add(x, 1)) {
+        var wd = x.getDay();
+        if (wd !== 0 && wd !== 6 && !holidayOn(x)) return x;
+      }
+      return null;
+    }
+
+    // повний статус «на сьогодні» для плашки та розкладу
+    function status(now) {
+      now = day0(now || new Date());
+      var wd = now.getDay(), weekend = wd === 0 || wd === 6;
+      var hol = holidayOn(now);
+      var nextDay = nextSchoolDay(now);
+      var s = { date: now, weekend: weekend, holiday: hol, schoolDay: !weekend && !hol,
+                week: null, nextWeek: null, resume: nextDay, resumeWeek: nextDay ? weekOf(nextDay) : null,
+                upcoming: null };
+      if (s.schoolDay) {
+        s.week = weekOf(now);
+        var nm = add(monday(now), 7);
+        var nextHol = weekIsHoliday(nm) ? holidayOn(nm) || holidayOn(add(nm, 4)) : null;
+        s.nextWeek = nextHol ? null : weekOf(nm);
+        s.nextWeekHoliday = nextHol;
+      }
+      // канікули, що починаються протягом найближчих 10 днів
+      for (var i = 0; i < cal.holidays.length; i++) {
+        var st = parse(cal.holidays[i].start), diff = (st - now) / 864e5;
+        if (diff > 0 && diff <= 10) { s.upcoming = cal.holidays[i]; break; }
+      }
+      // який тиждень показувати в розкладі: поточний, а у вихідні/канікули — найближчий навчальний
+      s.showWeek = s.schoolDay ? s.week : s.resumeWeek;
+      return s;
+    }
+
+    function render(s, compact) {
+      var esc = function (t) { return String(t).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
+      var chip = function (w, label) { return w ? '<span class="wk wk--' + w.toLowerCase() + '">' + (label === undefined ? "тиждень " : label ? label + " " : "") + w + "</span>" : ""; };
+      var icon, main, sub = "";
+      if (s.holiday === SUMMER) {
+        icon = SUMMER.emoji;
+        main = "<strong>Літні канікули</strong>";
+        sub = cal.yearEnd && s.date > parse(cal.yearEnd) ? "Навчальний рік завершено. Гарного літа!" : "Навчання з 1 вересня";
+      } else if (s.holiday) {
+        icon = s.holiday.emoji || "🏖️";
+        main = "<strong>" + esc(s.holiday.title) + "</strong> — до " + fmt(parse(s.holiday.end));
+        if (s.resume) sub = "Навчання з " + fmt(s.resume) + (s.resumeWeek ? " · " + chip(s.resumeWeek) : "");
+      } else if (s.weekend) {
+        icon = "🌤️";
+        main = "<strong>Вихідні</strong>";
+        if (s.resume) sub = (holidayOn(add(s.date, 1)) || holidayOn(add(s.date, 2)) ? "Навчання з " + fmt(s.resume) : "З понеділка") + (s.resumeWeek ? " · " + chip(s.resumeWeek) : "");
+      } else {
+        icon = "📚";
+        main = "Сьогодні " + WD[s.date.getDay()] + ", " + fmt(s.date) + (s.week ? " · " + chip(s.week, "Тиждень") : "");
+        if (s.nextWeek) sub = "Наступний тиждень — " + chip(s.nextWeek, "");
+        else if (s.nextWeekHoliday) sub = "Наступного тижня — " + esc(s.nextWeekHoliday.title.toLowerCase()) + " " + (s.nextWeekHoliday.emoji || "");
+      }
+      if (!compact && s.upcoming && !s.holiday) {
+        sub += (sub ? " · " : "") + (s.upcoming.emoji || "") + " " + esc(s.upcoming.title) + " з " + fmt(parse(s.upcoming.start));
+      }
+      return '<span class="week-status__icon" aria-hidden="true">' + icon + '</span>' +
+             '<span class="week-status__text"><span class="week-status__main">' + main + '</span>' +
+             (sub ? '<span class="week-status__sub">' + sub + "</span>" : "") + "</span>" +
+             (compact ? '<span class="week-status__go">Розклад <i class="fa-solid fa-arrow-right"></i></span>' : "");
+    }
+
+    // ?date=2027-03-22 у адресі — перевірка, як сайт виглядатиме в інший день
+    var forced = /[?&]date=(\d{4}-\d{2}-\d{2})/.exec(location.search);
+    var today = status(forced ? parse(forced[1]) : new Date());
+    if (cal.ab || cal.holidays.length) {
+      $$("[data-week-status]").forEach(function (el) {
+        el.innerHTML = render(today, el.classList.contains("week-status--compact"));
+        el.classList.toggle("is-holiday", !!today.holiday);
+        el.hidden = false;
+      });
+    }
+    return { today: today, weekOf: weekOf, holidayOn: holidayOn, status: status, parse: parse };
+  })();
+  window.SchoolCalendar = Cal;
+
   /* ---------------------------------------------------------------- розклад уроків */
   $$("[data-schedule]").forEach(function (box) {
     var btns = $$("[data-class-btn]", box);
@@ -409,10 +533,11 @@
     var dayBtns = $$("[data-day-btn]", box);
     if (!tables.length) return;
 
-    // сьогодні: Пн=0 … Пт=4; у вихідні показуємо понеділок
-    var wd = new Date().getDay();
-    var today = wd >= 1 && wd <= 5 ? wd - 1 : -1;
-    var day = today >= 0 ? today : 0;
+    // сьогодні: Пн=0 … Пт=4; у вихідні й на канікулах — день, коли навчання відновиться (або понеділок)
+    var st = Cal.today;
+    var today = st.schoolDay ? (st.date.getDay() + 6) % 7 : -1;
+    var resumeDay = st.resume && st.holiday !== undefined && !st.schoolDay ? (st.resume.getDay() + 6) % 7 : 0;
+    var day = today >= 0 ? today : resumeDay;
 
     function replay(table) {
       if (reduce || !table) return;
@@ -444,12 +569,19 @@
 
     btns.forEach(function (b) { b.addEventListener("click", function () { setClass(b.dataset.classBtn, true); }); });
     dayBtns.forEach(function (b) { b.addEventListener("click", function () { setDay(+b.dataset.dayBtn, true); }); });
-    $$("[data-week-btn]", box).forEach(function (b, _, all) {
-      b.addEventListener("click", function () {
-        box.dataset.week = b.dataset.weekBtn;
-        all.forEach(function (x) { x.classList.toggle("is-active", x === b); });
+    var weekBtns = $$("[data-week-btn]", box);
+    function setWeek(w) {
+      box.dataset.week = w;
+      weekBtns.forEach(function (x) { x.classList.toggle("is-active", x.dataset.weekBtn === w); });
+    }
+    weekBtns.forEach(function (b) { b.addEventListener("click", function () { setWeek(b.dataset.weekBtn); }); });
+    // поточний (або найближчий навчальний) тиждень — вибраний одразу й позначений «зараз»
+    if (st.showWeek && weekBtns.length) {
+      weekBtns.forEach(function (b) {
+        if (b.dataset.weekBtn === st.showWeek) b.insertAdjacentHTML("beforeend", ' <span class="seg__now">' + (st.schoolDay ? "зараз" : "далі") + "</span>");
       });
-    });
+      setWeek(st.showWeek);
+    }
     $$("[data-print]", box).forEach(function (b) { b.addEventListener("click", function () { window.print(); }); });
 
     // свайп ліворуч/праворуч по таблиці на телефоні — сусідній день

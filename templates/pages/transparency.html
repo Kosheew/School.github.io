@@ -22,7 +22,7 @@
       <article class="card" data-reveal>
         <h2 class="card__h"><i class="fa-solid fa-calendar-check"></i> Навчальний рік {{ y.year }}</h2>
         <ol class="timeline" data-timeline>
-          {% for t in y.timeline %}
+          {% for t in y.calendar %}
           <li class="timeline__item{{ ' is-break' if t['break'] }}"><strong>{{ t.title }}</strong><span>{{ t.dates }}</span></li>
           {% endfor %}
         </ol>

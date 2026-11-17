@@ -21,6 +21,7 @@
     {% else %}
 
     <div class="schedule" data-schedule data-active-day="0" data-week="">
+      <div class="week-status" data-week-status hidden></div>
       <div class="schedule__picker" data-reveal>
         {% for label, lo, hi in [("Початкова школа", 1, 4), ("Базова школа", 5, 9)] %}
           {% set group = [] %}

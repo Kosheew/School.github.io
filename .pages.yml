@@ -156,14 +156,30 @@ content:
     format: json
     fields:
       - { name: year, label: Навчальний рік, type: string }
-      - name: timeline
-        label: Семестри й канікули
+      - name: semesters
+        label: Семестри
         type: object
         list: true
         fields:
           - { name: title, label: Назва, type: string }
-          - { name: dates, label: Дати, type: string }
-          - { name: break, label: Канікули, type: boolean }
+          - { name: start, label: Початок, type: date }
+          - { name: end, label: Кінець, type: date }
+      - name: holidays
+        label: Канікули (сайт сам показує їх і не рахує ці тижні в чергуванні A/B)
+        type: object
+        list: true
+        fields:
+          - { name: title, label: Назва, type: string }
+          - { name: start, label: Перший день канікул, type: date }
+          - { name: end, label: Останній день канікул, type: date }
+          - { name: emoji, label: Емодзі, type: string }
+      - name: ab_weeks
+        label: Чергування тижнів A/B
+        type: object
+        fields:
+          - { name: anchor_monday, label: Понеділок відомого тижня, type: date }
+          - { name: anchor_week, label: Який це тиждень, type: select, options: { values: [A, B] } }
+          - { name: skip_holiday_weeks, label: Не рахувати тижні, що повністю на канікулах, type: boolean }
       - name: facts
         label: Організація навчання
         type: object

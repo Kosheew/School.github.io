@@ -226,9 +226,61 @@ def strip_tags(s: str) -> str:
     return html.unescape(re.sub(r"<[^>]+>", " ", s)).replace("\xa0", " ")
 
 
+def prepare_calendar(year: dict, where: Path) -> None:
+    """Перевіряє семестри, канікули й точку відліку тижнів A/B; готує дані для сторінок і JS."""
+    def d(v, label):
+        out = parse_date(v, where)
+        if out is None:
+            raise ContentError(f"{where.relative_to(ROOT)}: не заповнена дата «{label}»")
+        return out
+
+    holidays = []
+    for h in year.get("holidays") or []:
+        start, end = d(h.get("start"), h.get("title", "канікули")), d(h.get("end"), h.get("title", "канікули"))
+        if end < start:
+            raise ContentError(f"{where.relative_to(ROOT)}: «{h.get('title')}» закінчуються раніше, ніж починаються")
+        holidays.append({"title": h.get("title") or "Канікули", "start": start, "end": end, "emoji": h.get("emoji", "")})
+    holidays.sort(key=lambda h: h["start"])
+
+    ab = year.get("ab_weeks") or {}
+    if ab.get("anchor_monday"):
+        anchor = d(ab["anchor_monday"], "точка відліку тижнів A/B")
+        if anchor.weekday() != 0:
+            raise ContentError(f"{where.relative_to(ROOT)}: точка відліку тижнів A/B ({anchor:%d.%m.%Y}) має бути понеділком")
+        if ab.get("anchor_week") not in ("A", "B"):
+            raise ContentError(f"{where.relative_to(ROOT)}: тиждень точки відліку має бути «A» або «B»")
+
+    def fmt(x):
+        return f"{x:%d.%m.%Y}"
+
+    calendar = []
+    for sm in year.get("semesters") or []:
+        start = d(sm.get("start"), sm.get("title", "семестр"))
+        end = parse_date(sm.get("end"), where)
+        calendar.append({"title": sm.get("title", ""), "start": start, "break": False,
+                         "dates": f"{fmt(start)} — {fmt(end)}" if end else f"з {fmt(start)}"})
+    for h in holidays:
+        calendar.append({"title": h["title"], "start": h["start"], "break": True,
+                         "dates": f"{fmt(h['start'])} — {fmt(h['end'])}"})
+    calendar.sort(key=lambda x: x["start"])
+    year["calendar"] = calendar
+    # те, що потрібно браузеру, щоб визначити «сьогодні»: канікули й чергування тижнів
+    sem_dates = [(parse_date(sm.get("start"), where), parse_date(sm.get("end"), where)) for sm in year.get("semesters") or []]
+    year_start = min((st for st, _ in sem_dates if st), default=None)
+    year_end = max((en for _, en in sem_dates if en), default=None)
+    year["calendar_js"] = {
+        "yearStart": year_start.isoformat() if year_start else None,
+        "yearEnd": year_end.isoformat() if year_end else None,
+        "holidays": [{**h, "start": h["start"].isoformat(), "end": h["end"].isoformat()} for h in holidays],
+        "ab": {"anchor": ab.get("anchor_monday"), "week": ab.get("anchor_week"),
+               "skipHolidayWeeks": bool(ab.get("skip_holiday_weeks", True))} if ab.get("anchor_monday") else None,
+    }
+
+
 def load() -> Site:
     settings = read_json(CONTENT / "settings.json")
     year = read_json(CONTENT / "school-year.json")
+    prepare_calendar(year, CONTENT / "school-year.json")
     site = Site(settings=settings, year=year)
     sched_file = CONTENT / "schedule.json"
     site.schedule = read_json(sched_file) if sched_file.exists() else {}
@@ -308,18 +360,41 @@ def file_hash(paths: list[Path]) -> str:
     return h.hexdigest()[:10]
 
 
+def publish(out: Path) -> None:
+    """Підміняє dist/ щойно зібраною папкою (перейменування — майже миттєве)."""
+    old = ROOT / f".dist-old-{os.getpid()}-{time.time_ns()}"
+    for attempt in range(20):  # Windows може тримати файл, який саме віддає сервер
+        try:
+            if DIST.exists():
+                DIST.rename(old)
+            out.rename(DIST)
+            break
+        except OSError:
+            if old.exists() and not DIST.exists():
+                old.rename(DIST)
+            time.sleep(0.1)
+    else:
+        shutil.rmtree(out, ignore_errors=True)
+        raise ContentError("не вдалося оновити dist/ — файли зайняті іншим процесом")
+    shutil.rmtree(old, ignore_errors=True)
+
+
 def build(base: str, *, dev: bool = False) -> None:
     started = time.perf_counter()
     site = load()
     s = site.settings
 
-    if DIST.exists():
-        shutil.rmtree(DIST)
-    shutil.copytree(STATIC, DIST / "static", ignore=shutil.ignore_patterns("css"))
+    # Збираємо в тимчасову папку й підміняємо dist/ одним кроком: сервер і браузер ніколи не
+    # бачать напівзібраний сайт, а два одночасні запуски не псують один одному файли.
+    for stale in [*ROOT.glob(".dist-build-*"), *ROOT.glob(".dist-old-*")]:
+        if time.time() - stale.stat().st_mtime > 60:  # залишки від збірок, що впали
+            shutil.rmtree(stale, ignore_errors=True)
+    OUT = ROOT / f".dist-build-{os.getpid()}-{time.time_ns()}"
+    shutil.copytree(STATIC, OUT / "static", ignore=shutil.ignore_patterns("css"))
 
     css_files = [STATIC / "css" / n for n in CSS_BUNDLE]
-    (DIST / "static/css").mkdir(parents=True, exist_ok=True)
-    (DIST / "static/css/site.css").write_text(
+    (OUT / "static/css").mkdir(parents=True, exist_ok=True)
+    (OUT / "static/css/site.css").write_text(
         "\n".join(f"/* {p.name} */\n" + p.read_text(encoding="utf-8") for p in css_files), encoding="utf-8")
     version = file_hash(css_files + [STATIC / "js" / "site.js"])
 
@@ -381,8 +456,8 @@ def build(base: str, *, dev: bool = False) -> None:
     )
 
     def render(template: str, out: str, **ctx) -> None:
-        target = DIST / out / "index.html" if out.endswith("/") or out == "" else DIST / out
-        depth = len(target.relative_to(DIST).parts) - 1
+        target = OUT / out / "index.html" if out.endswith("/") or out == "" else OUT / out
+        depth = len(target.relative_to(OUT).parts) - 1
         current["root"] = base if out == "404.html" else "../" * depth
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(env.get_template(template).render(**ctx), encoding="utf-8")
@@ -404,15 +479,16 @@ def build(base: str, *, dev: bool = False) -> None:
 
     render("pages/not-found.html", "404.html", page="", title="Сторінку не знайдено", description="", path="404.html")
 
-    (DIST / ".nojekyll").write_text("", encoding="utf-8")
-    (DIST / "robots.txt").write_text(f"User-agent: *\nAllow: /\nSitemap: {absolute('sitemap.xml')}\n", encoding="utf-8")
+    (OUT / ".nojekyll").write_text("", encoding="utf-8")
+    (OUT / "robots.txt").write_text(f"User-agent: *\nAllow: /\nSitemap: {absolute('sitemap.xml')}\n", encoding="utf-8")
     entries = "".join(
         f"<url><loc>{html.escape(absolute(p))}</loc>{f'<lastmod>{d.isoformat()}</lastmod>' if d else ''}</url>"
         for p, d in sitemap)
-    (DIST / "sitemap.xml").write_text(
+    (OUT / "sitemap.xml").write_text(
         f'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{entries}</urlset>',
         encoding="utf-8")
 
+    publish(OUT)
     ms = (time.perf_counter() - started) * 1000
     print(f"✓ {len(pages)} сторінок, {len(site.news)} новин, {len(site.documents)} документів → dist/ ({ms:.0f} мс, base={base})")
 

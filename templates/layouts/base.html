@@ -37,6 +37,8 @@
       setTimeout(function () { if (!window.SITE_READY) d.classList.remove("js"); }, 1200);
     })(document.documentElement);
   </script>
+  {# календар навчального року: канікули й чергування тижнів A/B (site.js визначає «сьогодні») #}
+  <script type="application/json" id="school-calendar">{{ site.year.calendar_js | tojson }}</script>
   <script src="{{ asset('static/js/site.js') }}" defer></script>
   {% block head %}{% endblock %}
   <script type="application/ld+json">{{ {"@context": "https://schema.org", "@type": "School", "name": s.name, "url": s.site_url, "image": absolute(s.hero_image)} | tojson }}</script>
