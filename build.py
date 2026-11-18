@@ -52,6 +52,7 @@ SECTIONS = {
     "bullying": "Протидія булінгу",
     "useful": "Корисне",
     "integrity": "Академічна доброчесність",
+    "criteria": "Критерії оцінювання",
 }
 
 # Кожен "page" має існувати (в PAGES або content/pages/), інакше збірка зупиниться —
@@ -70,6 +71,7 @@ NAV = [
         {"label": "Розклад уроків", "page": "schedule", "icon": "fa-calendar-days"},
         {"label": "1–4 класи", "page": "grades-1-4", "icon": "fa-shapes"},
         {"label": "5–9 класи", "page": "grades-5-9", "icon": "fa-book-open"},
+        {"label": "Критерії оцінювання", "page": "criteria", "icon": "fa-list-check"},
         {"label": "Академічна доброчесність", "page": "integrity", "icon": "fa-award"},
         {"label": "Корисна інформація", "page": "useful", "icon": "fa-lightbulb"},
     ]},
@@ -104,6 +106,8 @@ PAGES = {
     "psychologist": ("pages/psychologist.html", "psychologist/", "Сторінка психолога", "Поради батькам і підтримка дітей."),
     "integrity": ("pages/integrity.html", "academic-integrity/", "Академічна доброчесність",
                   "Положення, накази, склад комісії та правила академічної доброчесності в гімназії."),
+    "criteria": ("pages/criteria.html", "criteria/", "Критерії оцінювання",
+                 "Критерії оцінювання результатів навчання учнів 5–9 класів з усіх предметів на 2026/2027 навчальний рік."),
     "games": ("pages/games.html", "games/", "Ігри на перерву",
               "Міні-ігри для учнів: «Знайди пару» з рівнями складності, зірочками й рекордами."),
     "schedule": ("pages/schedule.html", "schedule/", "Розклад уроків", "Актуальний розклад уроків для всіх класів: на тиждень і на сьогодні."),
@@ -162,6 +166,13 @@ class Document:
     date: date | None = None
     is_new: bool = False
     size_kb: int = 0
+    # необов'язкові поля для критеріїв оцінювання
+    subject: str = ""
+    emoji: str = ""
+    grades: str = ""
+    area: str = ""
+    poster: str = ""
+    featured: bool = False
 
 
 @dataclass
@@ -360,11 +371,14 @@ def load() -> Site:
             title=need(d, "title", p), section=section, file=f,
             order=int(d.get("order") or 0), date=parse_date(d.get("date"), p),
             is_new=bool(d.get("is_new")), size_kb=max(1, (ROOT / f).stat().st_size // 1024),
+            subject=d.get("subject", ""), emoji=d.get("emoji", ""), grades=d.get("grades", ""),
+            area=d.get("area", ""), featured=bool(d.get("featured")),
+            poster=media(d["poster"], p) if d.get("poster") else "",
         ))
     site.documents.sort(key=lambda x: (not x.is_new, x.order, x.title))
 
     # Кожен PDF з медіатеки має бути у списку документів — інакше його не видно на сайті.
-    listed = {d.file for d in site.documents}
+    listed = {d.file for d in site.documents} | {d.poster for d in site.documents if d.poster}
     orphans = sorted(p.relative_to(ROOT).as_posix() for p in (STATIC / "media" / "docs").rglob("*.pdf")
                      if p.relative_to(ROOT).as_posix() not in listed)
     if orphans:

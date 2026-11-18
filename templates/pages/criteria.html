@@ -1,0 +1,80 @@
+{% extends "layouts/base.html" %}
+{% import "partials/macros.html" as m %}
+{% block main %}
+{% set docs = site.docs("criteria") %}
+{% set intro = docs | selectattr("featured") | list %}
+{% set subjects = docs | rejectattr("featured") | list %}
+{% set areas = [] %}
+{% for d in subjects %}{% if d.area and d.area not in areas %}{% set _ = areas.append(d.area) %}{% endif %}{% endfor %}
+
+{{ m.hero("Критерії оцінювання", "Як оцінюють навчання з кожного предмета у 5–9 класах — за наказом МОН № 1427. Обери предмет і відкрий критерії просто тут.", "static/media/img/news-first-bell.jpg", [("Освітній процес", None), ("Критерії оцінювання", None)], eyebrow="2026/2027 навчальний рік · " ~ subjects | length ~ " предметів") }}
+
+<section class="section">
+  <div class="container stack">
+
+    <div class="crit-top">
+      {% if intro %}{% set z = intro[0] %}
+      <article class="callout crit-intro" data-reveal data-spotlight>
+        <span class="callout__icon" aria-hidden="true">{{ z.emoji or "🧭" }}</span>
+        <div>
+          <span class="badge badge--pulse"><i class="fa-solid fa-star"></i> Почніть звідси</span>
+          <h2 class="h3">{{ z.subject }}</h2>
+          <p>Що змінилося в оцінюванні 5–9 класів з 01.09.2026, як читати критерії та чому оцінюють результат, а не поведінку.</p>
+          <div class="row">
+            <a class="btn" href="{{ url(z.file) }}" data-pdf data-pdf-title="{{ z.title }}"><i class="fa-regular fa-eye"></i> Читати</a>
+            <a class="btn btn--soft" href="{{ page_url('grades-5-9') }}">Коротко про нові правила <i class="fa-solid fa-arrow-right"></i></a>
+          </div>
+        </div>
+      </article>
+      {% endif %}
+
+      <aside class="qr-card" data-reveal style="--i: 1">
+        <img class="qr-card__img" src="{{ url('static/media/print/criteria-qr.svg') }}" alt="QR-код: посилання на сторінку критеріїв оцінювання" width="200" height="200">
+        <div class="qr-card__body">
+          <p class="qr-card__title">📱 Наведи камеру</p>
+          <p class="qr-card__text">QR-код веде на цю сторінку. Роздрукуйте плакат для класу чи коридору.</p>
+          <div class="row">
+            <a class="btn btn--accent btn--sm" href="{{ url('static/media/print/criteria-qr-poster.pdf') }}" target="_blank" rel="noopener"><i class="fa-solid fa-print"></i> Плакат A4</a>
+            <button class="btn btn--soft btn--sm" type="button" data-share data-share-title="Критерії оцінювання — {{ s.short_name }}" data-share-url="{{ absolute('criteria/') }}"><i class="fa-solid fa-share-nodes"></i> <span data-share-label>Поділитися</span></button>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <div class="crit" data-docs>
+      <div class="docs__tools" data-reveal>
+        <label class="search">
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+          <input type="search" placeholder="Знайти предмет…" aria-label="Знайти предмет" data-docs-search>
+        </label>
+        <div class="chips" role="group" aria-label="Освітня галузь">
+          <button class="chip is-active" type="button" data-docs-filter="">Усі <span class="chip__n">{{ subjects | length }}</span></button>
+          {% for a in areas %}
+          <button class="chip" type="button" data-docs-filter="{{ a }}">{{ a }} <span class="chip__n">{{ subjects | selectattr("area", "equalto", a) | list | length }}</span></button>
+          {% endfor %}
+        </div>
+      </div>
+
+      <ul class="crit-grid">
+        {% for d in subjects %}
+        <li class="crit-card" data-doc data-section="{{ d.area }}" data-title="{{ (d.subject ~ ' ' ~ d.area ~ ' ' ~ d.grades) | lower }}" data-reveal data-spotlight style="--i: {{ loop.index0 % 6 }}; --h: {{ d.subject | hue }}">
+          <span class="crit-card__emoji" aria-hidden="true">{{ d.emoji }}</span>
+          <div class="crit-card__body">
+            <h3 class="crit-card__title">{{ d.subject }}</h3>
+            <p class="crit-card__meta"><span class="tag">{{ d.grades }}</span> <span>{{ d.area }}</span></p>
+          </div>
+          <div class="crit-card__actions">
+            <a class="btn btn--sm" href="{{ url(d.file) }}" data-pdf data-pdf-title="{{ d.title }}"><i class="fa-regular fa-eye"></i> Критерії</a>
+            {% if d.poster %}<a class="btn btn--soft btn--sm" href="{{ url(d.poster) }}" data-pdf data-pdf-title="{{ d.subject }} — коротко (плакат)" title="Стисла таблиця-плакат"><i class="fa-regular fa-image"></i> Плакат</a>{% endif %}
+            <a class="btn btn--soft btn--sm btn--icon" href="{{ url(d.file) }}" download aria-label="Завантажити: {{ d.title }}"><i class="fa-solid fa-download"></i></a>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+      <p class="docs__empty" hidden data-docs-empty><i class="fa-regular fa-face-frown"></i> Такого предмета не знайдено.</p>
+    </div>
+
+    <p class="muted crit-note" data-reveal><i class="fa-solid fa-circle-info"></i> Критерії оприлюднено відповідно до п. 3 ст. 41 Закону України «Про освіту». Учитель може адаптувати їх для учнів з особливими освітніми потребами відповідно до ІПР.</p>
+  </div>
+</section>
+{% endblock %}

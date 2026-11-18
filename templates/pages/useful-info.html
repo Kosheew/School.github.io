@@ -3,7 +3,15 @@
 {% block main %}
 {{ m.hero("Корисна інформація", "Критерії оцінювання та інші матеріали для учнів і батьків.", "static/media/img/news-safety-officer.jpg", [("Корисне", None)]) }}
 <section class="section">
-  <div class="container">
+  <div class="container stack">
+    <a class="callout crit-link" href="{{ page_url('criteria') }}" data-reveal data-spotlight>
+      <span class="callout__icon" aria-hidden="true">📋</span>
+      <div>
+        <h2 class="h3">Критерії оцінювання 2026/2027</h2>
+        <p>Усі предмети 5–9 класів на одній сторінці: 📖 🧮 🧬 🌍 💻 🎨 — і QR-код для друку.</p>
+        <span class="btn btn--sm">Відкрити <i class="fa-solid fa-arrow-right"></i></span>
+      </div>
+    </a>
     {{ m.doc_list(site.docs("useful")) }}
   </div>
 </section>

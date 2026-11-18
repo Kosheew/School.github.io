@@ -93,6 +93,7 @@ content:
             - { value: bullying, label: Протидія булінгу }
             - { value: useful, label: Корисна інформація }
             - { value: integrity, label: Академічна доброчесність }
+            - { value: criteria, label: Критерії оцінювання (5–9) }
       - name: file
         label: PDF-файл
         type: file
@@ -108,6 +109,13 @@ content:
         label: Порядок у списку (менше — вище)
         type: number
         default: 100
+      # Лише для розділу «Критерії оцінювання»
+      - { name: subject, label: "Критерії: предмет", type: string }
+      - { name: emoji, label: "Критерії: емодзі", type: string }
+      - { name: grades, label: "Критерії: класи (напр. 5–9 класи)", type: string }
+      - { name: area, label: "Критерії: освітня галузь (фільтр)", type: string }
+      - { name: poster, label: "Критерії: плакат PDF (необов'язково)", type: file }
+      - { name: featured, label: "Критерії: показати першою (пояснювальна записка)", type: boolean, default: false }
 
   - name: settings
     label: Налаштування сайту
